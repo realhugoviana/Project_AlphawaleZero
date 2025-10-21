@@ -2,4 +2,4 @@
 
 ### Google Drive
 
-https://drive.google.com/drive/folders/1OaZDR9vKzrTRpwCnGOWWwBd6t58CFK6h?ths=true
+https://drive.google.com/drive/folders/1OaZDR9vKzrTRpwCnGOWWwBd6t58CFK6h?usp=share_link
