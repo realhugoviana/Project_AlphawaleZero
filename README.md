@@ -1,14 +1,14 @@
 # AI-game-project-2025
 
-// Description du projet
+* Description du projet
 
 ### Requirements
 
-// Techno nécessaires
+* Techno nécessaires
 
 ### Utilisation
 
-// Tuto
+* Tuto
 
 ### Google Drive
 
