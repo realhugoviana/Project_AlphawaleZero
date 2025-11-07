@@ -1,7 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h> 
+#include <string.h>  
+#include <ctype.h> 
+#include <stdbool.h>
 #include "jeu.h"
 
 int main() {
-    printf("Salam!\n");
-    return 0;
+    jouerPartie();
 }

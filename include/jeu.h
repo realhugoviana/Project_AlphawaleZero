@@ -1,6 +1,10 @@
 #ifndef JEU_H
 #define JEU_H
 
+#include <stdio.h>
+#include <stdlib.h> 
+#include <string.h>  
+#include <ctype.h> 
 #include <stdbool.h>
 
 typedef struct {
@@ -10,7 +14,7 @@ typedef struct {
     int score[2];
     bool joueurMachine;
     bool joueurActuel;
-    char coup[5];
+    char coup[6];
 } Jeu;
 
 Jeu* initJeu(bool joueurMachine);
@@ -24,7 +28,7 @@ int prendreGraines(Jeu* jeu, int trou, int couleur);
 int distribuerGraines(Jeu* jeu, int trou, int couleur);
 
 void viderTrou(Jeu* jeu, int trou);
-
+ 
 int recupererNbGrainesTotal(Jeu* jeu, int trou);
 
 void capturerGraines(Jeu* jeu, int trou);
@@ -33,7 +37,7 @@ void lireCoup(Jeu* jeu);
 
 void jouerTour(Jeu* jeu);
 
-void afficherTour(Jeu* jeu);
+void afficherJeu(Jeu* jeu);
 
 void jouerPartie();
 
