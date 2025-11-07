@@ -9,7 +9,9 @@
 ### Utilisation
 
 ```bash
+git clone https://github.com/realhugoviana/AI-game-project-2025.git
 make
+./awale
 ```
 
 ### Google Drive
