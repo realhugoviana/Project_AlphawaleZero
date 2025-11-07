@@ -8,7 +8,9 @@
 
 ### Utilisation
 
-* Tuto
+```bash
+make
+```
 
 ### Google Drive
 
