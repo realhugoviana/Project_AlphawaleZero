@@ -3,13 +3,37 @@
 
 #include <stdbool.h>
 
-int distribuerGraines(int trou, int couleur);
+typedef struct {
+    int rouge[16];
+    int bleu[16];
+    int transparent[16];
+    int score[2];
+    bool joueurMachine;
+    bool joueurActuel;
+    char coup[5];
+} Jeu;
 
-void viderTrou(int trou);
+Jeu* initJeu(bool joueurMachine);
 
-void capturerGraines(int trou, bool joueur);
+void ajouterGraine(Jeu* jeu, int trou, int couleur);
 
-void tour(bool joueur);
+void retirerGraine(Jeu* jeu, int trou, int couleur);
+
+int prendreGraines(Jeu* jeu, int trou, int couleur);
+
+int distribuerGraines(Jeu* jeu, int trou, int couleur);
+
+void viderTrou(Jeu* jeu, int trou);
+
+int recupererNbGrainesTotal(Jeu* jeu, int trou);
+
+void capturerGraines(Jeu* jeu, int trou);
+
+void lireCoup(Jeu* jeu);
+
+void jouerTour(Jeu* jeu);
+
+void afficherTour(Jeu* jeu);
 
 void jouerPartie();
 
