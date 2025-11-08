@@ -177,7 +177,7 @@ void jouerTour(Jeu* jeu) {
     char* coup = jeu->coup;
     printf("[DEBUG] Coup lu : '%s'\n", coup);
 
-    bool estTransparent = strchr(coup, 'T') != NULL;
+    bool estTransparent = strchr(toupper(coup), 'T') != NULL;
     printf("[DEBUG] Coup transparent ? %s\n", estTransparent ? "oui" : "non");
 
     char couleurChar = toupper(jeu->coup[strlen(coup) - 1]);
