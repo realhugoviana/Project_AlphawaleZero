@@ -37,6 +37,8 @@ void lireCoup(Jeu* jeu);
 
 void jouerTour(Jeu* jeu);
 
+bool estFinPartie(Jeu* jeu);
+
 void afficherJeu(Jeu* jeu);
 
 void jouerPartie();

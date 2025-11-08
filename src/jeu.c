@@ -229,11 +229,35 @@ void afficherJeu(Jeu* jeu) {
 }
 
 
+bool estFinPartie(Jeu* jeu) {
+    if (jeu->score[0] >= 49) {
+        printf("Le joueur 1 a gagné !\n");
+        return true;
+    } else if (jeu->score[1] >= 49) {
+        printf("Le joueur 2 a gagné !\n");
+        return true;
+    } else if (jeu->score[0] == 40 && jeu->score[1] == 40) {
+        printf("Match nul !\n");
+        return true;
+    } else if (96 - (jeu->score[0] + jeu->score[1]) < 10) {
+        printf("Moins de 10 graines restantes. Fin de la partie !\n");
+        if (jeu->score[0] > jeu->score[1]) {
+            printf("Le joueur 1 a gagné !\n");
+        } else {
+            printf("Le joueur 2 a gagné !\n");
+        } 
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
 void jouerPartie() {
     Jeu* jeu = initJeu(0);
 
     afficherJeu(jeu);
-    while (96 - (jeu->score[0] + jeu->score[1]) >= 10) {
+    while (!estFinPartie(jeu)) {
         jouerTour(jeu);
 
         jeu->joueurActuel = (jeu->joueurActuel+1) % 2;
