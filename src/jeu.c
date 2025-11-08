@@ -85,6 +85,11 @@ int distribuerGraines(Jeu* jeu, int trou, int couleur) {
 
     // Distribution des graines transparentes
     while (grainesTransparente > 0) {
+        if (trouActuel == trou) {
+            // Sauter le trou d'origine
+            trouActuel = (trouActuel + step) % 16;
+        }
+
         ajouterGraine(jeu, trouActuel, 2);
         printf("[DEBUG] Ajout d'une graine transparente au trou %d (restantes = %d)\n",
                trouActuel, grainesTransparente - 1);
@@ -94,6 +99,11 @@ int distribuerGraines(Jeu* jeu, int trou, int couleur) {
 
     // Distribution des graines de couleur
     while (grainesCouleur > 0) {
+        if (trouActuel == trou) {
+            // Sauter le trou d'origine
+            trouActuel = (trouActuel + step) % 16;
+        }
+
         ajouterGraine(jeu, trouActuel, couleur % 2);
         printf("[DEBUG] Ajout d'une graine de couleur %d au trou %d (restantes = %d)\n",
                couleur % 2, trouActuel, grainesCouleur - 1);
