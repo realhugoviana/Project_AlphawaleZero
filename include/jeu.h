@@ -14,7 +14,7 @@ typedef struct {
     int score[2];
     bool joueurMachine;
     bool joueurActuel;
-    char coup[6];
+    char coup[16];
 } Jeu;
 
 Jeu* initJeu(bool joueurMachine);
