@@ -6,6 +6,15 @@
 
 #include "jeu.h"
 
+
+#define DEBUG_MODE 0   // mettre 0 pour désactiver
+
+#if DEBUG_MODE
+    #define DEBUG_PRINT(...) printf(__VA_ARGS__)
+#else
+    #define DEBUG_PRINT(...)
+#endif
+
 Jeu* initJeu(bool joueurMachine) {
     Jeu* jeu = (Jeu*)malloc(sizeof(Jeu));
 
@@ -69,24 +78,24 @@ int prendreGraines(Jeu* jeu, int trou, int couleur) {
 
 
 int distribuerGraines(Jeu* jeu, int trou, int couleur) {
-    printf("[DEBUG] Début de distribuerGraines(trou = %d, couleur = %d)\n", trou, couleur);
+    DEBUG_PRINT("[DEBUG] Début de distribuerGraines(trou = %d, couleur = %d)\n", trou, couleur);
 
     int grainesCouleur = 0;
     int grainesTransparente = 0;
     int step = (couleur % 2) + 1;
 
-    printf("[DEBUG] Step pour la distribution = %d\n", step);
+    DEBUG_PRINT("[DEBUG] Step pour la distribution = %d\n", step);
 
     grainesCouleur = prendreGraines(jeu, trou, couleur % 2);
-    printf("[DEBUG] Graines de couleur %d prises : %d\n", couleur % 2, grainesCouleur);
+    DEBUG_PRINT("[DEBUG] Graines de couleur %d prises : %d\n", couleur % 2, grainesCouleur);
 
     if (couleur >= 2) {
         grainesTransparente = prendreGraines(jeu, trou, couleur);
-        printf("[DEBUG] Graines transparentes prises : %d\n", grainesTransparente);
+        DEBUG_PRINT("[DEBUG] Graines transparentes prises : %d\n", grainesTransparente);
     }
 
     int trouActuel = (trou + 1) % 16;
-    printf("[DEBUG] Distribution commence au trou %d\n", trouActuel);
+    DEBUG_PRINT("[DEBUG] Distribution commence au trou %d\n", trouActuel);
 
     // Distribution des graines transparentes
     while (grainesTransparente > 0) {
@@ -96,7 +105,7 @@ int distribuerGraines(Jeu* jeu, int trou, int couleur) {
         }
 
         ajouterGraine(jeu, trouActuel, 2);
-        printf("[DEBUG] Ajout d'une graine transparente au trou %d (restantes = %d)\n",
+        DEBUG_PRINT("[DEBUG] Ajout d'une graine transparente au trou %d (restantes = %d)\n",
                trouActuel, grainesTransparente - 1);
         grainesTransparente--;
         trouActuel = (trouActuel + step) % 16;
@@ -110,7 +119,7 @@ int distribuerGraines(Jeu* jeu, int trou, int couleur) {
         }
 
         ajouterGraine(jeu, trouActuel, couleur % 2);
-        printf("[DEBUG] Ajout d'une graine de couleur %d au trou %d (restantes = %d)\n",
+        DEBUG_PRINT("[DEBUG] Ajout d'une graine de couleur %d au trou %d (restantes = %d)\n",
                couleur % 2, trouActuel, grainesCouleur - 1);
         grainesCouleur--;
         trouActuel = (trouActuel + step) % 16;
@@ -118,8 +127,8 @@ int distribuerGraines(Jeu* jeu, int trou, int couleur) {
 
     // Retour au dernier trou distribué
     trouActuel = (trouActuel - step + 16) % 16;
-    printf("[DEBUG] Dernier trou distribué : %d\n", trouActuel);
-    printf("[DEBUG] Fin de distribuerGraines()\n\n");
+    DEBUG_PRINT("[DEBUG] Dernier trou distribué : %d\n", trouActuel);
+    DEBUG_PRINT("[DEBUG] Fin de distribuerGraines()\n\n");
 
     return trouActuel;
 }
@@ -149,21 +158,21 @@ bool estAffame(Jeu* jeu, int trou) {
 }
 
 void capturerGraines(Jeu* jeu, int trou) {
-    printf("[DEBUG] Début de capturerGraines(trou = %d)\n", trou);
+    DEBUG_PRINT("[DEBUG] Début de capturerGraines(trou = %d)\n", trou);
 
     int trouActuel = trou;
     int nbGrainesTotal = recupererNbGrainesTotal(jeu, trouActuel);
-    printf("[DEBUG] Nombre de graines initial dans le trou %d : %d\n", trouActuel, nbGrainesTotal);
+    DEBUG_PRINT("[DEBUG] Nombre de graines initial dans le trou %d : %d\n", trouActuel, nbGrainesTotal);
 
     while (nbGrainesTotal == 2 || nbGrainesTotal == 3) {
-        printf("[DEBUG] → Trou %d contient %d graines → capture !\n", trouActuel, nbGrainesTotal);
+        DEBUG_PRINT("[DEBUG] → Trou %d contient %d graines → capture !\n", trouActuel, nbGrainesTotal);
 
         // Vider le trou et mettre à jour le score
         viderTrou(jeu, trouActuel);
         jeu->score[jeu->joueurActuel] += nbGrainesTotal;
 
-        printf("[DEBUG]    - Trou %d vidé.\n", trouActuel);
-        printf("[DEBUG]    - Score joueur %d = %d\n", 
+        DEBUG_PRINT("[DEBUG]    - Trou %d vidé.\n", trouActuel);
+        DEBUG_PRINT("[DEBUG]    - Score joueur %d = %d\n", 
                jeu->joueurActuel, jeu->score[jeu->joueurActuel]);
 
         // Passer au trou précédent (boucle circulaire)
@@ -171,7 +180,7 @@ void capturerGraines(Jeu* jeu, int trou) {
         trouActuel = (trouActuel - 1 + 16) % 16;
         nbGrainesTotal = recupererNbGrainesTotal(jeu, trouActuel);
 
-        printf("[DEBUG]    - Passage du trou %d au trou %d (nbGraines = %d)\n",
+        DEBUG_PRINT("[DEBUG]    - Passage du trou %d au trou %d (nbGraines = %d)\n",
                trouPrecedent, trouActuel, nbGrainesTotal);
     }
 
@@ -185,9 +194,9 @@ void capturerGraines(Jeu* jeu, int trou) {
     }
 
 
-    printf("[DEBUG] Fin de la boucle de capture. Condition non remplie (trou %d : %d graines)\n",
+    DEBUG_PRINT("[DEBUG] Fin de la boucle de capture. Condition non remplie (trou %d : %d graines)\n",
            trouActuel, nbGrainesTotal);
-    printf("[DEBUG] Fin de capturerGraines()\n\n");
+   DEBUG_PRINT("[DEBUG] Fin de capturerGraines()\n\n");
 }
 
 
@@ -207,17 +216,17 @@ void lireCoup(Jeu* jeu) {
 
 
 void jouerTour(Jeu* jeu) {
-    printf("[DEBUG] Début de jouerTour()\n");
+    DEBUG_PRINT("[DEBUG] Début de jouerTour()\n");
 
     lireCoup(jeu);
     char* coup = jeu->coup;
-    printf("[DEBUG] Coup lu : '%s'\n", coup);
+    DEBUG_PRINT("[DEBUG] Coup lu : '%s'\n", coup);
 
     bool estTransparent = strchr(coup, 'T') != NULL || strchr(coup, 't') != NULL;
-    printf("[DEBUG] Coup transparent ? %s\n", estTransparent ? "oui" : "non");
+    DEBUG_PRINT("[DEBUG] Coup transparent ? %s\n", estTransparent ? "oui" : "non");
 
     char couleurChar = toupper(jeu->coup[strlen(coup) - 1]);
-    printf("[DEBUG] Caractère couleur lu : '%c'\n", couleurChar);
+    DEBUG_PRINT("[DEBUG] Caractère couleur lu : '%c'\n", couleurChar);
 
     int trou;
     char tmp[3];
@@ -225,27 +234,27 @@ void jouerTour(Jeu* jeu) {
     if (estTransparent) {
         strncpy(tmp, coup, strlen(coup) - 2);
         tmp[strlen(coup) - 2] = '\0';
-        printf("[DEBUG] Extraction coup transparent, tmp = '%s'\n", tmp);
+        DEBUG_PRINT("[DEBUG] Extraction coup transparent, tmp = '%s'\n", tmp);
     } else {
         strncpy(tmp, coup, strlen(coup) - 1);
         tmp[strlen(coup) - 1] = '\0';
-        printf("[DEBUG] Extraction coup normal, tmp = '%s'\n", tmp);
+        DEBUG_PRINT("[DEBUG] Extraction coup normal, tmp = '%s'\n", tmp);
     }
 
     trou = atoi(tmp) - 1;
-    printf("[DEBUG] Trou choisi : %d (index 0-based)\n", trou);
+    DEBUG_PRINT("[DEBUG] Trou choisi : %d (index 0-based)\n", trou);
 
     int couleur = (estTransparent * 2) + ((couleurChar == 'R') ? 0 : 1);
-    printf("[DEBUG] Couleur calculée : %d\n", couleur);
-    printf("         -> 0 = Rouge, 1 = Bleu, 2 = Transparent Rouge, 3 = Transparent Bleu\n");
+    DEBUG_PRINT("[DEBUG] Couleur calculée : %d\n", couleur);
+    DEBUG_PRINT("         -> 0 = Rouge, 1 = Bleu, 2 = Transparent Rouge, 3 = Transparent Bleu\n");
 
-    printf("[DEBUG] Appel de distribuerGraines(jeu, %d, %d)\n", trou, couleur);
+    DEBUG_PRINT("[DEBUG] Appel de distribuerGraines(jeu, %d, %d)\n", trou, couleur);
     trou = distribuerGraines(jeu, trou, couleur);
 
-    printf("[DEBUG] Appel de capturerGraines(jeu, %d)\n", trou);
+    DEBUG_PRINT("[DEBUG] Appel de capturerGraines(jeu, %d)\n", trou);
     capturerGraines(jeu, trou);
 
-    printf("[DEBUG] Fin de jouerTour()\n\n");
+    DEBUG_PRINT("[DEBUG] Fin de jouerTour()\n\n");
 }
 
 
@@ -361,7 +370,7 @@ void jouerPartie() {
 
     afficherJeu(jeu);
     while (!estFinPartie(jeu)) {
-        // afficherCoups(jeu);
+        afficherCoups(jeu);
         jouerTour(jeu);
 
         jeu->joueurActuel = donnerAdversaire(jeu);
