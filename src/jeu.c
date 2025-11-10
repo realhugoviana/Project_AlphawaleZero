@@ -316,7 +316,7 @@ void copierJeu(const Jeu* src, Jeu* dst) {
 
 
 // factoriser afficherCoups
-void afficherCoup(Jeu* jeu, int i, bool joueur, int couleur) {
+int afficherCoup(Jeu* jeu, int i, bool joueur, int couleur) {
     Jeu tmp;
     copierJeu(jeu, &tmp);
 
@@ -334,8 +334,13 @@ void afficherCoup(Jeu* jeu, int i, bool joueur, int couleur) {
     } else {
         printf("   Coup joué : %dTB\n", i + 1);
     }
-    printf("   Graines capturées : %d\n\n", tmp.score[joueur] - scoreAvant);
 
+    int scoreApres = tmp.score[joueur];
+    int gain = scoreApres - scoreAvant;
+
+    printf("   Graines capturées : %d\n\n", gain);
+
+    return gain;
 }
 
 
@@ -344,24 +349,53 @@ void afficherCoups(Jeu* jeu) {
     printf("Coups jouables pour le joueur %d :\n", jeu->joueurActuel + 1);
     bool joueur = jeu->joueurActuel;
 
+    int meilleurGain = -1;
+    int meilleurCoupIndex = -1;
+    int meilleurCoupCouleur = -1;
+
     for (int i = joueur; i < 16; i += 2) {
         if (recupererNbGrainesTotal(jeu, i) > 0) {
             printf(" - Trou %d\n", i + 1);
+
+            int gain;
             
             if (jeu->rouge[i] > 0) {
-                afficherCoup(jeu, i, joueur, 0);
+                gain = afficherCoup(jeu, i, joueur, 0);
+                if (meilleurGain < gain) {
+                    meilleurGain = gain;
+                    meilleurCoupIndex = i;
+                    meilleurCoupCouleur = 0;
+                }
             } 
 
             if (jeu->bleu[i] > 0) {
-                afficherCoup(jeu, i, joueur, 1);
+                gain = afficherCoup(jeu, i, joueur, 1);
+                if (meilleurGain < gain) {
+                    meilleurGain = gain;
+                    meilleurCoupIndex = i;
+                    meilleurCoupCouleur = 1;
+                }
             }
             if (jeu->transparent[i] > 0) {
-                afficherCoup(jeu, i, joueur, 2);
+                gain = afficherCoup(jeu, i, joueur, 3);
+                if (meilleurGain < gain) {
+                    meilleurGain = gain;
+                    meilleurCoupIndex = i;
+                    meilleurCoupCouleur = 3;
+                }
 
-                afficherCoup(jeu, i, joueur, 3);
+                gain = afficherCoup(jeu, i, joueur, 4);
+                if (meilleurGain < gain) {
+                    meilleurGain = gain;
+                    meilleurCoupIndex = i;
+                    meilleurCoupCouleur = 4;
+                }
             }
         } 
     }
+
+    int trou = distribuerGraines(jeu, meilleurCoupIndex, meilleurCoupCouleur);
+    capturerGraines(jeu, trou);
 }
 
 
@@ -371,7 +405,7 @@ void jouerPartie() {
     afficherJeu(jeu);
     while (!estFinPartie(jeu)) {
         afficherCoups(jeu);
-        jouerTour(jeu);
+        //jouerTour(jeu);
 
         jeu->joueurActuel = donnerAdversaire(jeu);
         afficherJeu(jeu);
