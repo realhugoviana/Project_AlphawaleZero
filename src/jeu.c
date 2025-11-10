@@ -173,7 +173,7 @@ void capturerGraines(Jeu* jeu, int trou) {
 
     if (estAffame(jeu, jeu->joueurActuel)) {
         printf("Le joueur %d a été affamé.\n",
-               (jeu->joueurActuel+1)%2);
+               jeu->joueurActuel+1);
 
         // donner les graines restantes à joueur
         jeu->score[jeu->joueurActuel] += 96 - (jeu->score[0] + jeu->score[1]);
@@ -208,7 +208,7 @@ void jouerTour(Jeu* jeu) {
     char* coup = jeu->coup;
     printf("[DEBUG] Coup lu : '%s'\n", coup);
 
-    bool estTransparent = strchr(toupper(coup), 'T') != NULL;
+    bool estTransparent = strchr(coup, 'T') != NULL || strchr(coup, 't') != NULL;
     printf("[DEBUG] Coup transparent ? %s\n", estTransparent ? "oui" : "non");
 
     char couleurChar = toupper(jeu->coup[strlen(coup) - 1]);
@@ -254,7 +254,7 @@ void afficherJeu(Jeu* jeu) {
 
     printf("Dernier coup joué : %s\n", jeu->coup);
     printf("Score : 1 = %2d | 2 = %2d\n", jeu->score[0], jeu->score[1]);
-    printf("Joueur actuel : %s\n", jeu->joueurActuel ? "1" : "2");
+    printf("Joueur actuel : %s\n", jeu->joueurActuel ? "2" : "1");
 
     printf("====================\n");
 }
@@ -284,14 +284,82 @@ bool estFinPartie(Jeu* jeu) {
 }
 
 
+void copierJeu(const Jeu* src, Jeu* dst) {
+    for (int i = 0; i < 16; i++) {
+        dst->rouge[i]       = src->rouge[i];
+        dst->bleu[i]        = src->bleu[i];
+        dst->transparent[i] = src->transparent[i];
+    }
+
+    dst->score[0]     = src->score[0];
+    dst->score[1]     = src->score[1];
+
+    dst->joueurMachine = src->joueurMachine;
+    dst->joueurActuel = src->joueurActuel;
+
+    strcpy(dst->coup, src->coup);
+}
+
+
+// factoriser afficherCoups
+void afficherCoup(Jeu* jeu, int i, bool joueur, int couleur) {
+    Jeu tmp;
+    copierJeu(jeu, &tmp);
+
+    int scoreAvant = tmp.score[joueur];
+
+    int trou = distribuerGraines(&tmp, i, couleur);
+    capturerGraines(&tmp, trou);
+
+    if (couleur == 0) {
+        printf("   Coup joué : %dR\n", i + 1);
+    } else if (couleur == 1) {
+        printf("   Coup joué : %dB\n", i + 1);
+    } else if (couleur == 2) {
+        printf("   Coup joué : %dTR\n", i + 1);
+    } else {
+        printf("   Coup joué : %dTB\n", i + 1);
+    }
+    printf("   Graines capturées : %d\n\n", tmp.score[joueur] - scoreAvant);
+
+}
+
+
+// affiche tout les possibles coups jouables
+void afficherCoups(Jeu* jeu) {
+    printf("Coups jouables pour le joueur %d :\n", jeu->joueurActuel + 1);
+    bool joueur = jeu->joueurActuel;
+
+    for (int i = joueur; i < 16; i += 2) {
+        if (recupererNbGrainesTotal(jeu, i) > 0) {
+            printf(" - Trou %d\n", i + 1);
+            
+            if (jeu->rouge[i] > 0) {
+                afficherCoup(jeu, i, joueur, 0);
+            } 
+
+            if (jeu->bleu[i] > 0) {
+                afficherCoup(jeu, i, joueur, 1);
+            }
+            if (jeu->transparent[i] > 0) {
+                afficherCoup(jeu, i, joueur, 2);
+
+                afficherCoup(jeu, i, joueur, 3);
+            }
+        } 
+    }
+}
+
+
 void jouerPartie() {
     Jeu* jeu = initJeu(0);
 
     afficherJeu(jeu);
     while (!estFinPartie(jeu)) {
+        afficherCoups(jeu);
         jouerTour(jeu);
 
-        jeu->joueurActuel = (jeu->joueurActuel+1) % 2;
+        jeu->joueurActuel+=1;
         afficherJeu(jeu);
     }
 
