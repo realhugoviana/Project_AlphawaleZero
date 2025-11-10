@@ -25,6 +25,11 @@ Jeu* initJeu(bool joueurMachine) {
 }
 
 
+bool donnerAdversaire(Jeu* jeu) {
+    return !jeu->joueurActuel;
+}
+
+
 void ajouterGraine(Jeu* jeu, int trou, int couleur) {
     if (couleur == 0) {
         jeu->rouge[trou]++;
@@ -171,9 +176,9 @@ void capturerGraines(Jeu* jeu, int trou) {
     }
 
 
-    if (estAffame(jeu, jeu->joueurActuel)) {
+    if (estAffame(jeu, donnerAdversaire(jeu))) {
         printf("Le joueur %d a été affamé.\n",
-               jeu->joueurActuel+1);
+               donnerAdversaire(jeu) + 1);
 
         // donner les graines restantes à joueur
         jeu->score[jeu->joueurActuel] += 96 - (jeu->score[0] + jeu->score[1]);
@@ -356,10 +361,10 @@ void jouerPartie() {
 
     afficherJeu(jeu);
     while (!estFinPartie(jeu)) {
-        afficherCoups(jeu);
+        // afficherCoups(jeu);
         jouerTour(jeu);
 
-        jeu->joueurActuel+=1;
+        jeu->joueurActuel = donnerAdversaire(jeu);
         afficherJeu(jeu);
     }
 
