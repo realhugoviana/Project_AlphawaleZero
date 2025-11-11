@@ -8,13 +8,18 @@
 #include <stdbool.h>
 
 typedef struct {
+    int trou;
+    int couleur;
+} Coup;
+
+typedef struct {
     int rouge[16];
     int bleu[16];
     int transparent[16];
     int score[2];
     bool joueurMachine;
     bool joueurActuel;
-    char coup[16];
+    Coup coup;
 } Jeu;
 
 Jeu* initJeu(bool joueurMachine);
