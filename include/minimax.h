@@ -12,7 +12,10 @@
 typedef struct {
     Jeu etat;
     int evaluation;
-    Noeud* enfant
+    int profondeur;
+    int nombreEnfants;
+    Noeud** enfant;
+    Coup coup;
 } Noeud;
 
 Coup minimax(Jeu* jeu, int profondeur, int (*evaluation)(Jeu*));
