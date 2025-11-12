@@ -15,6 +15,7 @@
     #define DEBUG_PRINT(...)
 #endif
 
+
 Jeu* initJeu(bool joueurMachine) {
     Jeu* jeu = (Jeu*)malloc(sizeof(Jeu));
 
@@ -32,6 +33,18 @@ Jeu* initJeu(bool joueurMachine) {
 
     return jeu;
 }
+
+
+void libererJeu(Jeu* jeu) {
+    free(jeu->rouge);
+    free(jeu->bleu);
+    free(jeu->transparent);
+    
+    free(jeu->score);
+
+    free(jeu);
+}
+
 
 Coup* creerCoup(int trou, int couleur) {
     Coup* coup = (Coup*)malloc(sizeof(Coup));

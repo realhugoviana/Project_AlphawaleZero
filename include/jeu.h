@@ -22,6 +22,10 @@ typedef struct {
 } Jeu;
 
 Jeu* initJeu(bool joueurMachine);
+
+void copierJeu(const Jeu* src, Jeu* dst);
+
+void libererJeu(Jeu* jeu);
  
 int recupererNbGrainesTotal(Jeu* jeu, int trou);
 
