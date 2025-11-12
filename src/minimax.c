@@ -32,10 +32,10 @@ Coup minimax(Jeu* jeu, int profondeur, int (*evaluation)(Jeu)) {
 
 
 int genererCoupsEnfants(Jeu* jeu, Coup** coupsEnfants) {
-    int nbCoupsEnfants = 0;
-    int trou = jeu->joueurActuel;
+    int nbCoupsEnfants = 0; // Nombre de coups générés
+    int trou = jeu->joueurActuel; // trou est égal à 0 si c'est au tour du joueur 1 et 1 sinon
 
-    for (int trou; trou < 16; trou+= 2) {
+    for (int trou; trou < 16; trou+= 2) { // += 2 car on saute les trous adverse
         if (jeu->rouge[trou] > 0) {
             coupsEnfants[nbCoupsEnfants]->trou = trou;
             coupsEnfants[nbCoupsEnfants]->couleur = 0;
@@ -59,5 +59,5 @@ int genererCoupsEnfants(Jeu* jeu, Coup** coupsEnfants) {
         }
     }
 
-    return nbCoupsEnfants;
+    return nbCoupsEnfants; // Retourne le nombre de coups enfant pour connaitre la largeur de l'arbre
 }
