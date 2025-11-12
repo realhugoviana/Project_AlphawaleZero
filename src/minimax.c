@@ -29,3 +29,35 @@ Coup minimax(Jeu* jeu, int profondeur, int (*evaluation)(Jeu)) {
         meilleurEvaluation = evaluation(jeu);
     }
 }
+
+
+int genererCoupsEnfants(Jeu* jeu, Coup** coupsEnfants) {
+    int nbCoupsEnfants = 0;
+    int trou = jeu->joueurActuel;
+
+    for (int trou; trou < 16; trou+= 2) {
+        if (jeu->rouge[trou] > 0) {
+            coupsEnfants[nbCoupsEnfants]->trou = trou;
+            coupsEnfants[nbCoupsEnfants]->couleur = 0;
+            nbCoupsEnfants++;
+        }
+
+        if (jeu->bleu[trou] > 0) {
+            coupsEnfants[nbCoupsEnfants]->trou = trou;
+            coupsEnfants[nbCoupsEnfants]->couleur = 1;
+            nbCoupsEnfants++;
+        }
+
+        if (jeu->transparent[trou] > 0) {
+            coupsEnfants[nbCoupsEnfants]->trou = trou;
+            coupsEnfants[nbCoupsEnfants]->couleur = 2;
+            nbCoupsEnfants++;
+
+            coupsEnfants[nbCoupsEnfants]->trou = trou;
+            coupsEnfants[nbCoupsEnfants]->couleur = 3;
+            nbCoupsEnfants++;
+        }
+    }
+
+    return nbCoupsEnfants;
+}
