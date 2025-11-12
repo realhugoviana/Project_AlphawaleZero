@@ -54,6 +54,11 @@ Coup* creerCoup(int trou, int couleur) {
 }
 
 
+void libererCoup(Coup* coup) {
+    free(coup);
+}
+
+
 bool donnerAdversaire(Jeu* jeu) {
     return !jeu->joueurActuel;
 }

@@ -26,6 +26,8 @@ Jeu* initJeu(bool joueurMachine);
 void copierJeu(const Jeu* src, Jeu* dst);
 
 void libererJeu(Jeu* jeu);
+
+void libererCoup(Coup* coup);
  
 int recupererNbGrainesTotal(Jeu* jeu, int trou);
 
