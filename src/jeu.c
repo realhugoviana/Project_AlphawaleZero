@@ -33,6 +33,13 @@ Jeu* initJeu(bool joueurMachine) {
     return jeu;
 }
 
+Coup* creerCoup(int trou, int couleur) {
+    Coup* coup = (Coup*)malloc(sizeof(Coup));
+    coup->trou = trou;
+    coup->couleur = couleur;
+    return coup;
+}
+
 
 bool donnerAdversaire(Jeu* jeu) {
     return !jeu->joueurActuel;
@@ -146,7 +153,8 @@ int recupererNbGrainesTotal(Jeu* jeu, int trou) {
 }
 
 
-bool estAffame(Jeu* jeu, int trou) {
+bool estAffame(Jeu* jeu, int adversaire) {
+    int trou = adversaire;
     while (trou < 16) {
         if (recupererNbGrainesTotal(jeu, trou) > 0) {
             return false; 
@@ -154,8 +162,8 @@ bool estAffame(Jeu* jeu, int trou) {
         trou += 2;
     }
     return true; 
-    
 }
+
 
 void capturerGraines(Jeu* jeu, int trou) {
     DEBUG_PRINT("[DEBUG] Début de capturerGraines(trou = %d)\n", trou);
@@ -200,44 +208,38 @@ void capturerGraines(Jeu* jeu, int trou) {
 }
 
 
-void lireCoup(Jeu* jeu) {
+Coup* lireCoup(Jeu* jeu) {
+    char buffer[6];
+
     printf("joueur %d \n", jeu->joueurActuel+1);
     printf("Entrez le coup : ");
-    fgets(jeu->coup, 5, stdin);
+    fgets(buffer, 5, stdin);
 
-    size_t len = strlen(jeu->coup);
-    if (len > 0 && jeu->coup[len - 1] == '\n') {
-        jeu->coup[len - 1] = '\0';
+    size_t len = strlen(buffer);
+    if (len > 0 && buffer[len - 1] == '\n') {
+        buffer[len - 1] = '\0';
     } else {
         int c;
         while ((c = getchar()) != '\n' && c != EOF);
     }
-}
+    DEBUG_PRINT("[DEBUG] Coup lu : '%s'\n", buffer);
 
-
-void jouerTour(Jeu* jeu) {
-    DEBUG_PRINT("[DEBUG] Début de jouerTour()\n");
-
-    lireCoup(jeu);
-    char* coup = jeu->coup;
-    DEBUG_PRINT("[DEBUG] Coup lu : '%s'\n", coup);
-
-    bool estTransparent = strchr(coup, 'T') != NULL || strchr(coup, 't') != NULL;
+    bool estTransparent = strchr(buffer, 'T') != NULL || strchr(buffer, 't') != NULL;
     DEBUG_PRINT("[DEBUG] Coup transparent ? %s\n", estTransparent ? "oui" : "non");
 
-    char couleurChar = toupper(jeu->coup[strlen(coup) - 1]);
+    char couleurChar = toupper(buffer[strlen(buffer) - 1]);
     DEBUG_PRINT("[DEBUG] Caractère couleur lu : '%c'\n", couleurChar);
 
     int trou;
     char tmp[3];
 
     if (estTransparent) {
-        strncpy(tmp, coup, strlen(coup) - 2);
-        tmp[strlen(coup) - 2] = '\0';
+        strncpy(tmp, buffer, strlen(buffer) - 2);
+        tmp[strlen(buffer) - 2] = '\0';
         DEBUG_PRINT("[DEBUG] Extraction coup transparent, tmp = '%s'\n", tmp);
     } else {
-        strncpy(tmp, coup, strlen(coup) - 1);
-        tmp[strlen(coup) - 1] = '\0';
+        strncpy(tmp, buffer, strlen(buffer) - 1);
+        tmp[strlen(buffer) - 1] = '\0';
         DEBUG_PRINT("[DEBUG] Extraction coup normal, tmp = '%s'\n", tmp);
     }
 
@@ -248,13 +250,18 @@ void jouerTour(Jeu* jeu) {
     DEBUG_PRINT("[DEBUG] Couleur calculée : %d\n", couleur);
     DEBUG_PRINT("         -> 0 = Rouge, 1 = Bleu, 2 = Transparent Rouge, 3 = Transparent Bleu\n");
 
-    DEBUG_PRINT("[DEBUG] Appel de distribuerGraines(jeu, %d, %d)\n", trou, couleur);
-    trou = distribuerGraines(jeu, trou, couleur);
+    return creerCoup(trou, couleur);
+}
 
-    DEBUG_PRINT("[DEBUG] Appel de capturerGraines(jeu, %d)\n", trou);
-    capturerGraines(jeu, trou);
 
-    DEBUG_PRINT("[DEBUG] Fin de jouerTour()\n\n");
+int donnerGagnant(Jeu* jeu) {
+    if (jeu->score[0] > jeu->score[1]) {
+        return 1;
+    } else if (jeu->score[1] > jeu->score[0]) {
+        return 2;
+    } else {
+        return 0;
+    }
 }
 
 
@@ -266,9 +273,19 @@ void afficherJeu(Jeu* jeu) {
     }
     printf("\n\n");
 
-    printf("Dernier coup joué : %s\n", jeu->coup);
     printf("Score : 1 = %2d | 2 = %2d\n", jeu->score[0], jeu->score[1]);
-    printf("Joueur actuel : %s\n", jeu->joueurActuel ? "2" : "1");
+    if (estFinPartie(jeu)) {
+        printf("=== PARTIE TERMINÉE ===\n");
+        int gagnant = donnerGagnant(jeu);
+        if (gagnant == 0) {
+            printf("Match nul !\n");
+        } else {
+            printf("Le joueur %d a gagné la partie !\n", gagnant);
+        }
+    }
+    else {
+        printf("Joueur actuel : %s\n", jeu->joueurActuel ? "2" : "1");
+    }
 
     printf("====================\n");
 }
@@ -310,100 +327,12 @@ void copierJeu(const Jeu* src, Jeu* dst) {
 
     dst->joueurMachine = src->joueurMachine;
     dst->joueurActuel = src->joueurActuel;
-
-    strcpy(dst->coup, src->coup);
 }
 
 
 int jouerCoup(Jeu* jeu, int i, bool joueur, int couleur) {
-    Jeu tmp;
-    copierJeu(jeu, &tmp);
 
-    int scoreAvant = tmp.score[joueur];
-
-    int trou = distribuerGraines(&tmp, i, couleur);
-    capturerGraines(&tmp, trou);
-
-    int scoreApres = tmp.score[joueur];
-    int gain = scoreApres - scoreAvant;
-
-    return gain;
+    int dernier_trou = distribuerGraines(jeu, i, couleur);
+    capturerGraines(jeu, dernier_trou);
+    jeu->joueurActuel = donnerAdversaire(jeu);
 }
-
-
-void jouerCoups(Jeu* jeu) {
-    bool joueur = jeu->joueurActuel;
-
-    int meilleurGain = -1;
-    int meilleurCoupIndex = -1;
-    int meilleurCoupCouleur = -1;
-
-    for (int i = joueur; i < 16; i += 2) {
-        if (recupererNbGrainesTotal(jeu, i) > 0) {
-            int gain;
-            
-            if (jeu->rouge[i] > 0) {
-                gain = jouerCoup(jeu, i, joueur, 0);
-                if (meilleurGain < gain) {
-                    meilleurGain = gain;
-                    meilleurCoupIndex = i;
-                    meilleurCoupCouleur = 0;
-                }
-            } 
-
-            if (jeu->bleu[i] > 0) {
-                gain = jouerCoup(jeu, i, joueur, 1);
-                if (meilleurGain < gain) {
-                    meilleurGain = gain;
-                    meilleurCoupIndex = i;
-                    meilleurCoupCouleur = 1;
-                }
-            }
-            if (jeu->transparent[i] > 0) {
-                gain = jouerCoup(jeu, i, joueur, 2);
-                if (meilleurGain < gain) {
-                    meilleurGain = gain;
-                    meilleurCoupIndex = i;
-                    meilleurCoupCouleur = 2;
-                }
-
-                gain = jouerCoup(jeu, i, joueur, 3);
-                if (meilleurGain < gain) {
-                    meilleurGain = gain;
-                    meilleurCoupIndex = i;
-                    meilleurCoupCouleur = 3;
-                }
-            }
-        } 
-    }
-
-    int trou = distribuerGraines(jeu, meilleurCoupIndex, meilleurCoupCouleur);
-    capturerGraines(jeu, trou);
-
-    if (meilleurCoupCouleur == 0) {
-        sprintf(jeu->coup, "%dR", meilleurCoupIndex + 1);
-    } else if (meilleurCoupCouleur == 1) {
-        sprintf(jeu->coup, "%dB", meilleurCoupIndex + 1);
-    } else if (meilleurCoupCouleur == 2) {
-        sprintf(jeu->coup, "%dTR", meilleurCoupIndex + 1);
-    } else {
-        sprintf(jeu->coup, "%dTB", meilleurCoupIndex + 1);
-    }
-}
-
-
-void jouerPartie() {
-    Jeu* jeu = initJeu(0);
-
-    afficherJeu(jeu);
-    while (!estFinPartie(jeu)) {
-        jouerCoups(jeu);
-        //jouerTour(jeu);
-
-        jeu->joueurActuel = donnerAdversaire(jeu);
-        afficherJeu(jeu);
-    }
-
-    printf("Partie terminée.\n");
-}
-
