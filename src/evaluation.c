@@ -16,7 +16,7 @@
 #endif
 
 
-double evalFinPartie(Jeu jeu) {
+double evalFinPartie(Jeu* jeu) {
     double gainMax = 1000.0;
     double gainMin = -1000.0;
     double matchNul = 0.0;
@@ -36,12 +36,12 @@ double evalFinPartie(Jeu jeu) {
             return matchNul;
         }
     }
-    
+
     return 0.0; // Partie non terminée
 }
 
 
-double maxScore(Jeu jeu) {
+double maxScore(Jeu* jeu) {
     return jeu.score[0] - jeu.score[1];
 }
 

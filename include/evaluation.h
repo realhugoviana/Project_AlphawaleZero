@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include "jeu.h"
 
-int maxScore(Jeu jeu);
+int maxScore(Jeu* jeu);
+double evalFinPartie(Jeu* jeu);
 
 #endif // EVALUATION_H

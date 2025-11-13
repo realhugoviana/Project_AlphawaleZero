@@ -350,9 +350,12 @@ void copierJeu(const Jeu* src, Jeu* dst) {
 }
 
 
-int jouerCoup(Jeu* jeu, int i, bool joueur, int couleur) {
+int jouerCoup(Jeu* jeu, Coup* coup) {
+    int trou = coup->trou;
+    int couleur = coup->couleur;
 
-    int dernier_trou = distribuerGraines(jeu, i, couleur);
+    int dernier_trou = distribuerGraines(jeu, trou, couleur);
     capturerGraines(jeu, dernier_trou);
+
     jeu->joueurActuel = donnerAdversaire(jeu);
 }

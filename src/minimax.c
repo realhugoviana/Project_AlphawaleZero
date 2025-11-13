@@ -62,3 +62,44 @@ int genererCoupsEnfants(Jeu* jeu, Coup** coupsEnfants) {
     return nbCoupsEnfants; // Retourne le nombre de coups enfant pour connaitre la largeur de l'arbre
 }
 
+
+double minimax(Jeu* jeu, int profondeur, bool maximisant, double (*evaluation)(Jeu)) {
+    if (profondeur == 0) {
+        return evaluation(jeu);
+    } 
+
+    if (estFinPartie(jeu)) {
+        return evalFinPartie(jeu);
+    }
+
+    Coup* coupsEnfants[32]; // 8 trous * 4 couleurs possibles = 32 coups max
+    int nbCoupsEnfants = genererCoupsEnfants(jeu, coupsEnfants);
+
+    if (maximisant) {
+        double maxEval = -10000;
+        for (int i = 0; i < nbCoupsEnfants; i++) {
+            Jeu* jeuCopie;
+            copierJeu(jeu, jeuCopie);
+            jouerCoup(jeuCopie, coupsEnfants[i]);
+            double eval = minimax(jeuCopie, profondeur - 1, false, evaluation);
+            if (eval > maxEval) {
+                maxEval = eval;
+            }
+            libererJeu(jeuCopie);
+        }
+        return maxEval;
+    } else {
+        double minEval = 10000;
+        for (int i = 0; i < nbCoupsEnfants; i++) {
+            Jeu* jeuCopie;
+            copierJeu(jeu, jeuCopie);
+            jouerCoup(jeuCopie, coupsEnfants[i]);
+            double eval = minimax(jeuCopie, profondeur - 1, true, evaluation);
+            if (eval < minEval) {
+                minEval = eval;
+            }
+            libererJeu(&jeuCopie);
+        }
+        return minEval;
+    }
+}
