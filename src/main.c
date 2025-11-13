@@ -12,15 +12,14 @@ int main() {
 
     afficherJeu(jeu);
     while (!estFinPartie(jeu)) {
+        Coup* coup;
         if (jeu->joueurActuel == jeu->joueurMachine) {
-            jouerCoup(jeu);
+            coup = choisirMeilleurCoup(jeu, 2, minimax, maxScore);
         } else {
-            lireCoup(jeu);
+            coup = lireCoup(jeu);
         }
-        jouerCoups(jeu);
-        //jouerTour(jeu);
+        jouerCoup(jeu, coup);
 
-        jeu->joueurActuel = donnerAdversaire(jeu);
         afficherJeu(jeu);
     }
 

@@ -21,16 +21,16 @@ double evalFinPartie(Jeu* jeu) {
     double gainMin = -1000.0;
     double matchNul = 0.0;
 
-    if (jeu.score[0] >= 49) {
+    if (jeu->score[0] >= 49) {
         return gainMax;
-    } else if (jeu.score[1] >= 49) {
+    } else if (jeu->score[1] >= 49) {
         return gainMin;
-    } else if (jeu.score[0] == 40 && jeu.score[1] == 40) {
+    } else if (jeu->score[0] == 40 && jeu->score[1] == 40) {
         return matchNul; 
-    } else if (96 - (jeu.score[0] + jeu.score[1]) < 10) {
-        if (jeu.score[0] > jeu.score[1]) {
+    } else if (96 - (jeu->score[0] + jeu->score[1]) < 10) {
+        if (jeu->score[0] > jeu->score[1]) {
             return gainMax;
-        } else if (jeu.score[1] > jeu.score[0]) {
+        } else if (jeu->score[1] > jeu->score[0]) {
             return gainMin;
         } else {
             return matchNul;
@@ -42,6 +42,6 @@ double evalFinPartie(Jeu* jeu) {
 
 
 double maxScore(Jeu* jeu) {
-    return jeu.score[0] - jeu.score[1];
+    return jeu->score[0] - jeu->score[1];
 }
 

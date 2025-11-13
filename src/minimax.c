@@ -18,24 +18,10 @@
 #endif
 
 
-Coup minimax(Jeu* jeu, int profondeur, int (*evaluation)(Jeu)) {
-    // Implémentation de l'algorithme Minimax
-    // Cette fonction doit retourner le meilleur coup pour le joueur actuel
-    // en fonction de la profondeur spécifiée et de la fonction d'évaluation donnée.
-
-    int meilleurEvaluation = -10000;
-    if (profondeur == 0 || estFinPartie(jeu)) {
-        jouerCoup(jeu);
-        meilleurEvaluation = evaluation(jeu);
-    }
-}
-
-
 int genererCoupsEnfants(Jeu* jeu, Coup** coupsEnfants) {
     int nbCoupsEnfants = 0; // Nombre de coups générés
-    int trou = jeu->joueurActuel; // trou est égal à 0 si c'est au tour du joueur 1 et 1 sinon
 
-    for (int trou; trou < 16; trou+= 2) { // += 2 car on saute les trous adverse
+    for (int trou = jeu->joueurActuel; trou < 16; trou+= 2) { // += 2 car on saute les trous adverse
         if (jeu->rouge[trou] > 0) {
             coupsEnfants[nbCoupsEnfants]->trou = trou;
             coupsEnfants[nbCoupsEnfants]->couleur = 0;
@@ -63,7 +49,26 @@ int genererCoupsEnfants(Jeu* jeu, Coup** coupsEnfants) {
 }
 
 
-double minimax(Jeu* jeu, int profondeur, bool maximisant, double (*evaluation)(Jeu)) {
+Coup** creerCoupsEnfants() {
+    Coup** coupsEnfants = (Coup**)malloc(32 * sizeof(Coup*)); // 8 trous * 4 couleurs possibles = 32 coups max
+    for (int i = 0; i < 32; i++) {
+        coupsEnfants[i] = creerCoup(0, 0); // Initialisation des coups
+    }
+
+    return coupsEnfants;
+}
+
+
+void libererCoupsEnfants(Coup** coupsEnfants) {
+    for (int i = 0; i < 32; i++) {
+        libererCoup(coupsEnfants[i]);
+    }
+
+    free(coupsEnfants);
+}
+
+
+double minimax(Jeu* jeu, int profondeur, bool maximisant, double (*evaluation)(Jeu*)) {
     if (profondeur == 0) {
         return evaluation(jeu);
     } 
@@ -72,14 +77,13 @@ double minimax(Jeu* jeu, int profondeur, bool maximisant, double (*evaluation)(J
         return evalFinPartie(jeu);
     }
 
-    Coup* coupsEnfants[32]; // 8 trous * 4 couleurs possibles = 32 coups max
+    Coup** coupsEnfants = creerCoupsEnfants();
     int nbCoupsEnfants = genererCoupsEnfants(jeu, coupsEnfants);
 
     if (maximisant) {
         double maxEval = -10000;
         for (int i = 0; i < nbCoupsEnfants; i++) {
-            Jeu* jeuCopie;
-            copierJeu(jeu, jeuCopie);
+            Jeu* jeuCopie = copierJeu(jeu);
             jouerCoup(jeuCopie, coupsEnfants[i]);
             double eval = minimax(jeuCopie, profondeur - 1, false, evaluation);
             if (eval > maxEval) {
@@ -87,19 +91,45 @@ double minimax(Jeu* jeu, int profondeur, bool maximisant, double (*evaluation)(J
             }
             libererJeu(jeuCopie);
         }
+        libererCoupsEnfants(coupsEnfants);
         return maxEval;
     } else {
         double minEval = 10000;
         for (int i = 0; i < nbCoupsEnfants; i++) {
-            Jeu* jeuCopie;
-            copierJeu(jeu, jeuCopie);
+            Jeu* jeuCopie = copierJeu(jeu);
             jouerCoup(jeuCopie, coupsEnfants[i]);
             double eval = minimax(jeuCopie, profondeur - 1, true, evaluation);
             if (eval < minEval) {
                 minEval = eval;
             }
-            libererJeu(&jeuCopie);
+            libererJeu(jeuCopie);
         }
+        libererCoupsEnfants(coupsEnfants);
         return minEval;
     }
+
+}
+
+
+Coup choisirMeilleurCoup(Jeu* jeu, int profondeur, double (*minimax)(Jeu*, int, bool, double (*)(Jeu*)), double (*evaluation)(Jeu*)) {
+    Coup meilleurCoup;
+    double meilleurScore = -10000;
+
+    Coup** coupsEnfants = creerCoupsEnfants();
+    int nbCoupsEnfants = genererCoupsEnfants(jeu, coupsEnfants);
+
+    for (int i = 0; i < nbCoupsEnfants; i++) {
+        Jeu* jeuCopie = copierJeu(jeu);
+        jouerCoup(jeuCopie, coupsEnfants[i]);
+        double score = minimax(jeuCopie, profondeur - 1, false, evaluation);
+        if (score > meilleurScore) {
+            meilleurScore = score;
+            meilleurCoup = *coupsEnfants[i];
+        }
+        libererJeu(jeuCopie);
+    }
+
+    libererCoupsEnfants(coupsEnfants);
+
+    return meilleurCoup;
 }

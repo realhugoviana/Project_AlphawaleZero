@@ -36,12 +36,6 @@ Jeu* initJeu(bool joueurMachine) {
 
 
 void libererJeu(Jeu* jeu) {
-    free(jeu->rouge);
-    free(jeu->bleu);
-    free(jeu->transparent);
-    
-    free(jeu->score);
-
     free(jeu);
 }
 
@@ -202,7 +196,6 @@ void capturerGraines(Jeu* jeu, int trou) {
                jeu->joueurActuel, jeu->score[jeu->joueurActuel]);
 
         // Passer au trou précédent (boucle circulaire)
-        int trouPrecedent = trouActuel;
         trouActuel = (trouActuel - 1 + 16) % 16;
         nbGrainesTotal = recupererNbGrainesTotal(jeu, trouActuel);
 
@@ -335,22 +328,26 @@ bool estFinPartie(Jeu* jeu) {
 }
 
 
-void copierJeu(const Jeu* src, Jeu* dst) {
+Jeu* copierJeu(const Jeu* src) {
+    Jeu* dst = (Jeu*)malloc(sizeof(Jeu));
+
     for (int i = 0; i < 16; i++) {
-        dst->rouge[i]       = src->rouge[i];
-        dst->bleu[i]        = src->bleu[i];
+        dst->rouge[i] = src->rouge[i];
+        dst->bleu[i] = src->bleu[i];
         dst->transparent[i] = src->transparent[i];
     }
 
-    dst->score[0]     = src->score[0];
-    dst->score[1]     = src->score[1];
+    dst->score[0] = src->score[0];
+    dst->score[1] = src->score[1];
 
     dst->joueurMachine = src->joueurMachine;
     dst->joueurActuel = src->joueurActuel;
+
+    return dst;
 }
 
 
-int jouerCoup(Jeu* jeu, Coup* coup) {
+void jouerCoup(Jeu* jeu, Coup* coup) {
     int trou = coup->trou;
     int couleur = coup->couleur;
 

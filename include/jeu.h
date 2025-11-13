@@ -23,17 +23,19 @@ typedef struct {
 
 Jeu* initJeu(bool joueurMachine);
 
-void copierJeu(const Jeu* src, Jeu* dst);
+Jeu* copierJeu(const Jeu* src);
 
 void libererJeu(Jeu* jeu);
+
+Coup* creerCoup(int trou, int couleur);
 
 void libererCoup(Coup* coup);
  
 int recupererNbGrainesTotal(Jeu* jeu, int trou);
 
-void lireCoup(Jeu* jeu);
+Coup* lireCoup(Jeu* jeu);
 
-void jouerTour(Jeu* jeu);
+void jouerCoup(Jeu* jeu, Coup* coup);
 
 bool estFinPartie(Jeu* jeu);
 
