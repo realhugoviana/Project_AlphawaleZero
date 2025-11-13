@@ -323,9 +323,11 @@ bool estFinPartie(Jeu* jeu) {
         printf("Moins de 10 graines restantes.\n");
         if (jeu->score[0] > jeu->score[1]) {
             printf("Le joueur 1 a gagné !\n");
-        } else {
+        } else if (jeu->score[1] > jeu->score[0]) {
             printf("Le joueur 2 a gagné !\n");
-        } 
+        } else {
+            printf("Match nul !\n");
+        }
         return true;
     } else {
         return false;

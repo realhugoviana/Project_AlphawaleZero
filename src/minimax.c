@@ -61,3 +61,4 @@ int genererCoupsEnfants(Jeu* jeu, Coup** coupsEnfants) {
 
     return nbCoupsEnfants; // Retourne le nombre de coups enfant pour connaitre la largeur de l'arbre
 }
+
