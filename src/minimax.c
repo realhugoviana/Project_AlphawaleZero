@@ -111,8 +111,8 @@ double minimax(Jeu* jeu, int profondeur, bool maximisant, double (*evaluation)(J
 }
 
 
-Coup choisirMeilleurCoup(Jeu* jeu, int profondeur, double (*minimax)(Jeu*, int, bool, double (*)(Jeu*)), double (*evaluation)(Jeu*)) {
-    Coup meilleurCoup;
+Coup* choisirMeilleurCoup(Jeu* jeu, int profondeur, double (*minimax)(Jeu*, int, bool, double (*)(Jeu*)), double (*evaluation)(Jeu*)) {
+    Coup* meilleurCoup = creerCoup(-1, -1); 
     double meilleurScore = -10000;
 
     Coup** coupsEnfants = creerCoupsEnfants();
@@ -124,7 +124,8 @@ Coup choisirMeilleurCoup(Jeu* jeu, int profondeur, double (*minimax)(Jeu*, int, 
         double score = minimax(jeuCopie, profondeur - 1, false, evaluation);
         if (score > meilleurScore) {
             meilleurScore = score;
-            meilleurCoup = *coupsEnfants[i];
+            meilleurCoup->trou = coupsEnfants[i]->trou;
+            meilleurCoup->couleur = coupsEnfants[i]->couleur;
         }
         libererJeu(jeuCopie);
     }
