@@ -69,6 +69,76 @@ void libererCoupsEnfants(Coup** coupsEnfants) {
 }
 
 
+int bonusProfondeur(int nbCoups) {
+    if (nbCoups <= 2) return 1;
+    return 0;
+}
+
+
+double minimaxProfondeurVariable(Jeu* jeu, int profondeur, bool maximisant, double (*evaluation)(Jeu*)) {
+    if (profondeur == 0) {
+        return evaluation(jeu);
+    } 
+
+    if (estFinPartie(jeu)) {
+        return evalFinPartie(jeu);
+    }
+
+    Coup** coupsEnfants = creerCoupsEnfants();
+    int nbCoupsEnfants = genererCoupsEnfants(jeu, coupsEnfants);
+
+    int bonus = bonusProfondeur(nbCoupsEnfants);
+
+    if (maximisant) {
+        double maxEval = -10000;
+
+        for (int i = 0; i < nbCoupsEnfants; i++) {
+            Jeu* jeuCopie = copierJeu(jeu);
+            jouerCoup(jeuCopie, coupsEnfants[i]);
+
+            int prochaineProfondeur = profondeur - 1 + bonus;
+            if (prochaineProfondeur < 0) prochaineProfondeur = 0;
+            if (prochaineProfondeur > 30) prochaineProfondeur = 30;
+
+            double eval = minimaxProfondeurVariable(jeuCopie, prochaineProfondeur, false, evaluation);
+
+            if (eval > maxEval) {
+                maxEval = eval;
+            }
+
+            libererJeu(jeuCopie);
+        }
+
+        libererCoupsEnfants(coupsEnfants);
+
+        return maxEval;
+
+    } else {
+        double minEval = 10000;
+
+        for (int i = 0; i < nbCoupsEnfants; i++) {
+            Jeu* jeuCopie = copierJeu(jeu);
+            jouerCoup(jeuCopie, coupsEnfants[i]);
+
+            int prochaineProfondeur = profondeur - 1 + bonus;
+            if (prochaineProfondeur < 0) prochaineProfondeur = 0;
+            if (prochaineProfondeur > 30) prochaineProfondeur = 30;
+
+            double eval = minimaxProfondeurVariable(jeuCopie, prochaineProfondeur, true, evaluation);
+
+            if (eval < minEval) {
+                minEval = eval;
+            }
+
+            libererJeu(jeuCopie);
+        }
+
+        libererCoupsEnfants(coupsEnfants);
+
+        return minEval;
+    }
+}
+
 double minimax(Jeu* jeu, int profondeur, bool maximisant, double (*evaluation)(Jeu*)) {
     if (profondeur == 0) {
         return evaluation(jeu);

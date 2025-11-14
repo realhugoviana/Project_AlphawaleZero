@@ -11,8 +11,15 @@
 #include "evaluation.h"
 
 #define IA_MODE 2 // 0: Joueur vs Joueur, 1: Joueur vs IA, 2: IA vs IA
-#define PROFONDEUR_IA_1 3
-#define PROFONDEUR_IA_2 3
+
+#define PROFONDEUR_IA_1 4
+#define ALGO_IA_1 minimax
+#define EVAL_IA_1 maxScore
+
+#define PROFONDEUR_IA_2 4
+#define ALGO_IA_2 minimaxProfondeurVariable
+#define EVAL_IA_2 maxScore
+
 #define JOUEUR_MACHINE 0
 #define DUREE_SLEEP 0
 
@@ -36,7 +43,7 @@ int main() {
             if (jeu->joueurActuel == jeu->joueurMachine) { 
                 // IA joue
                 start = clock();
-                coup = choisirMeilleurCoup(jeu, PROFONDEUR_IA_1, minimax, maxScore);
+                coup = choisirMeilleurCoup(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
                 end = clock();
                 timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
             } else { 
@@ -47,9 +54,11 @@ int main() {
 
         // --- Mode IA vs IA ---
         else if (IA_MODE == 2) {
-            int profondeur = (jeu->joueurActuel == 0) ? PROFONDEUR_IA_1 : PROFONDEUR_IA_2;
             start = clock();
-            coup = choisirMeilleurCoup(jeu, profondeur, minimax, maxScore);
+            if (jeu->joueurActuel == 0) 
+                coup = choisirMeilleurCoup(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
+            else 
+                coup = choisirMeilleurCoup(jeu, PROFONDEUR_IA_2, ALGO_IA_2, EVAL_IA_2);
             end = clock();
             timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
             sleep(DUREE_SLEEP);

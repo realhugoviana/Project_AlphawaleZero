@@ -10,6 +10,7 @@
 #include "evaluation.h"
 
 double minimax(Jeu* jeu, int profondeur, bool maximisant, double (*evaluation)(Jeu*));
+double minimaxProfondeurVariable(Jeu* jeu, int profondeur, bool maximisant, double (*evaluation)(Jeu*));
 
 Coup* choisirMeilleurCoup(Jeu* jeu, int profondeur, double (*minimax)(Jeu*, int, bool, double (*)(Jeu*)), double (*evaluation)(Jeu*));
 
