@@ -51,6 +51,7 @@ int genererCoupsEnfants(Jeu* jeu, Coup** coupsEnfants) {
 
 Coup** creerCoupsEnfants() {
     Coup** coupsEnfants = (Coup**)malloc(32 * sizeof(Coup*)); // 8 trous * 4 couleurs possibles = 32 coups max
+    
     for (int i = 0; i < 32; i++) {
         coupsEnfants[i] = creerCoup(0, 0); // Initialisation des coups
     }
@@ -82,29 +83,42 @@ double minimax(Jeu* jeu, int profondeur, bool maximisant, double (*evaluation)(J
 
     if (maximisant) {
         double maxEval = -10000;
+
         for (int i = 0; i < nbCoupsEnfants; i++) {
             Jeu* jeuCopie = copierJeu(jeu);
             jouerCoup(jeuCopie, coupsEnfants[i]);
+
             double eval = minimax(jeuCopie, profondeur - 1, false, evaluation);
+
             if (eval > maxEval) {
                 maxEval = eval;
             }
+
             libererJeu(jeuCopie);
         }
+
         libererCoupsEnfants(coupsEnfants);
+
         return maxEval;
+
     } else {
         double minEval = 10000;
+
         for (int i = 0; i < nbCoupsEnfants; i++) {
             Jeu* jeuCopie = copierJeu(jeu);
             jouerCoup(jeuCopie, coupsEnfants[i]);
+
             double eval = minimax(jeuCopie, profondeur - 1, true, evaluation);
+
             if (eval < minEval) {
                 minEval = eval;
             }
+
             libererJeu(jeuCopie);
         }
+
         libererCoupsEnfants(coupsEnfants);
+
         return minEval;
     }
 
@@ -114,19 +128,26 @@ double minimax(Jeu* jeu, int profondeur, bool maximisant, double (*evaluation)(J
 Coup* choisirMeilleurCoup(Jeu* jeu, int profondeur, double (*minimax)(Jeu*, int, bool, double (*)(Jeu*)), double (*evaluation)(Jeu*)) {
     Coup* meilleurCoup = creerCoup(-1, -1); 
     double meilleurScore = -10000;
+    const int signeRacine = (jeu->joueurActuel == 0) ? +1 : -1;
 
     Coup** coupsEnfants = creerCoupsEnfants();
     int nbCoupsEnfants = genererCoupsEnfants(jeu, coupsEnfants);
 
     for (int i = 0; i < nbCoupsEnfants; i++) {
+
         Jeu* jeuCopie = copierJeu(jeu);
         jouerCoup(jeuCopie, coupsEnfants[i]);
-        double score = minimax(jeuCopie, profondeur - 1, false, evaluation);
+
+        bool estMax = (jeuCopie->joueurActuel == 0);
+
+        double score = signeRacine * minimax(jeuCopie, profondeur - 1, estMax, evaluation);
+
         if (score > meilleurScore) {
             meilleurScore = score;
             meilleurCoup->trou = coupsEnfants[i]->trou;
             meilleurCoup->couleur = coupsEnfants[i]->couleur;
         }
+
         libererJeu(jeuCopie);
     }
 

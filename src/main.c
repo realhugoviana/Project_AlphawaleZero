@@ -4,36 +4,67 @@
 #include <ctype.h> 
 #include <stdbool.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "jeu.h"
 #include "minimax.h"
 #include "evaluation.h"
 
+#define IA_MODE 2 // 0: Joueur vs Joueur, 1: Joueur vs IA, 2: IA vs IA
+#define PROFONDEUR_IA_1 3
+#define PROFONDEUR_IA_2 3
+#define JOUEUR_MACHINE 0
+#define DUREE_SLEEP 0
+
 
 int main() {
-    Jeu* jeu = initJeu(0);
-
+    Jeu* jeu = initJeu(JOUEUR_MACHINE); 
     afficherJeu(jeu);
+
     while (!estFinPartie(jeu)) {
-        Coup* coup;
+        Coup* coup = NULL;
         double timeSpent = 0.0;
-        if (jeu->joueurActuel == jeu->joueurMachine) {
-            clock_t start = clock();
-            coup = choisirMeilleurCoup(jeu, 5, minimax, maxScore);
-            clock_t end = clock();
-            timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
-        } else {
+        clock_t start, end;
+
+        // --- Mode Joueur vs Joueur ---
+        if (IA_MODE == 0) {
             coup = lireCoup(jeu);
         }
 
-        jouerCoup(jeu, coup);
+        // --- Mode Joueur vs IA ---
+        else if (IA_MODE == 1) {
+            if (jeu->joueurActuel == jeu->joueurMachine) { 
+                // IA joue
+                start = clock();
+                coup = choisirMeilleurCoup(jeu, PROFONDEUR_IA_1, minimax, maxScore);
+                end = clock();
+                timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
+            } else { 
+                // Joueur humain
+                coup = lireCoup(jeu);
+            }
+        }
 
+        // --- Mode IA vs IA ---
+        else if (IA_MODE == 2) {
+            int profondeur = (jeu->joueurActuel == 0) ? PROFONDEUR_IA_1 : PROFONDEUR_IA_2;
+            start = clock();
+            coup = choisirMeilleurCoup(jeu, profondeur, minimax, maxScore);
+            end = clock();
+            timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
+            sleep(DUREE_SLEEP);
+        }
+
+        jouerCoup(jeu, coup);
         afficherJeu(jeu);
         printf("Coup joué : Trou %d, Couleur %d\n", coup->trou + 1, coup->couleur);
-        printf("Temps de calcul : %.2f secondes\n", timeSpent);
+
+        if (IA_MODE != 0) 
+            printf("Temps de calcul : %.2f secondes\n", timeSpent);
 
         libererCoup(coup);
     }
 
     printf("Partie terminée.\n");
+    return 0;
 }

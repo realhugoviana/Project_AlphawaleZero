@@ -199,15 +199,12 @@ void capturerGraines(Jeu* jeu, int trou) {
         trouActuel = (trouActuel - 1 + 16) % 16;
         nbGrainesTotal = recupererNbGrainesTotal(jeu, trouActuel);
 
-        DEBUG_PRINT("[DEBUG]    - Passage du trou %d au trou %d (nbGraines = %d)\n",
-               trouPrecedent, trouActuel, nbGrainesTotal);
+        DEBUG_PRINT("[DEBUG]    - Passage au trou %d (nbGraines = %d)\n",
+                trouActuel, nbGrainesTotal);
     }
 
 
     if (estAffame(jeu, donnerAdversaire(jeu))) {
-        printf("Le joueur %d a été affamé.\n",
-               donnerAdversaire(jeu) + 1);
-
         // donner les graines restantes à joueur
         jeu->score[jeu->joueurActuel] += 96 - (jeu->score[0] + jeu->score[1]);
     }
@@ -304,22 +301,15 @@ void afficherJeu(Jeu* jeu) {
 
 bool estFinPartie(Jeu* jeu) {
     if (jeu->score[0] >= 49) {
-        printf("Le joueur 1 a gagné !\n");
         return true;
     } else if (jeu->score[1] >= 49) {
-        printf("Le joueur 2 a gagné !\n");
         return true;
     } else if (jeu->score[0] == 40 && jeu->score[1] == 40) {
-        printf("Match nul !\n");
         return true;
     } else if (96 - (jeu->score[0] + jeu->score[1]) < 10) {
-        printf("Moins de 10 graines restantes.\n");
         if (jeu->score[0] > jeu->score[1]) {
-            printf("Le joueur 1 a gagné !\n");
         } else if (jeu->score[1] > jeu->score[0]) {
-            printf("Le joueur 2 a gagné !\n");
         } else {
-            printf("Match nul !\n");
         }
         return true;
     } else {
