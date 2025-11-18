@@ -17,11 +17,11 @@
 #define EVAL_IA_1 maxScore
 
 #define PROFONDEUR_IA_2 4
-#define ALGO_IA_2 minimaxProfondeurVariable
+#define ALGO_IA_2 minimax
 #define EVAL_IA_2 maxScore
 
 #define JOUEUR_MACHINE 0
-#define DUREE_SLEEP 0
+#define DUREE_SLEEP 1
 
 
 int main() {
@@ -66,7 +66,7 @@ int main() {
 
         jouerCoup(jeu, coup);
         afficherJeu(jeu);
-        printf("Coup joué : Trou %d, Couleur %d\n", coup->trou + 1, coup->couleur);
+        sortirCoup(coup);
 
         if (IA_MODE != 0) 
             printf("Temps de calcul : %.2f secondes\n", timeSpent);

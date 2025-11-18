@@ -41,4 +41,6 @@ bool estFinPartie(Jeu* jeu);
 
 void afficherJeu(Jeu* jeu);
 
+void sortirCoup(Coup* coup);
+
 #endif // JEU_H

@@ -346,3 +346,18 @@ void jouerCoup(Jeu* jeu, Coup* coup) {
 
     jeu->joueurActuel = donnerAdversaire(jeu);
 }
+
+void sortirCoup(Coup* coup) {
+    char* couleurChar;
+    if (coup->couleur == 0) {
+        couleurChar = "R";
+    } else if (coup->couleur == 1) {
+        couleurChar = "B";
+    } else if (coup->couleur == 2) {
+        couleurChar = "TR";
+    } else {
+        couleurChar = "TB"; 
+    }
+
+    printf("%d%s\n", coup->trou + 1, couleurChar);
+}
