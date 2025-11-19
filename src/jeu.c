@@ -307,10 +307,6 @@ bool estFinPartie(Jeu* jeu) {
     } else if (jeu->score[0] == 40 && jeu->score[1] == 40) {
         return true;
     } else if (96 - (jeu->score[0] + jeu->score[1]) < 10) {
-        if (jeu->score[0] > jeu->score[1]) {
-        } else if (jeu->score[1] > jeu->score[0]) {
-        } else {
-        }
         return true;
     } else {
         return false;

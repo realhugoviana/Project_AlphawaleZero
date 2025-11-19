@@ -89,54 +89,36 @@ double minimaxProfondeurVariable(Jeu* jeu, int profondeur, bool maximisant, doub
 
     int bonus = bonusProfondeur(nbCoupsEnfants);
 
-    if (maximisant) {
-        double maxEval = -10000;
+    double eval;
+    double meilleurEval;
 
-        for (int i = 0; i < nbCoupsEnfants; i++) {
-            Jeu* jeuCopie = copierJeu(jeu);
-            jouerCoup(jeuCopie, coupsEnfants[i]);
+    if (maximisant) meilleurEval = -10000;
+    else meilleurEval = 10000;
 
-            int prochaineProfondeur = profondeur - 1 + bonus;
-            if (prochaineProfondeur < 0) prochaineProfondeur = 0;
-            if (prochaineProfondeur > 30) prochaineProfondeur = 30;
+    for (int i = 0; i < nbCoupsEnfants; i++) {
+        Jeu* jeuCopie = copierJeu(jeu);
+        jouerCoup(jeuCopie, coupsEnfants[i]);
 
-            double eval = minimaxProfondeurVariable(jeuCopie, prochaineProfondeur, false, evaluation);
+        int prochaineProfondeur = profondeur - 1 + bonus;
+        if (prochaineProfondeur < 0) prochaineProfondeur = 0;
+        eval = minimaxProfondeurVariable(jeuCopie, prochaineProfondeur, false, evaluation);
 
-            if (eval > maxEval) {
-                maxEval = eval;
+        if (maximisant) {
+            if (eval > meilleurEval) {
+                meilleurEval = eval;
             }
-
-            libererJeu(jeuCopie);
+        } else {
+            if (eval < meilleurEval) {
+                meilleurEval = eval;
+            }
         }
 
-        libererCoupsEnfants(coupsEnfants);
-
-        return maxEval;
-
-    } else {
-        double minEval = 10000;
-
-        for (int i = 0; i < nbCoupsEnfants; i++) {
-            Jeu* jeuCopie = copierJeu(jeu);
-            jouerCoup(jeuCopie, coupsEnfants[i]);
-
-            int prochaineProfondeur = profondeur - 1 + bonus;
-            if (prochaineProfondeur < 0) prochaineProfondeur = 0;
-            if (prochaineProfondeur > 30) prochaineProfondeur = 30;
-
-            double eval = minimaxProfondeurVariable(jeuCopie, prochaineProfondeur, true, evaluation);
-
-            if (eval < minEval) {
-                minEval = eval;
-            }
-
-            libererJeu(jeuCopie);
-        }
-
-        libererCoupsEnfants(coupsEnfants);
-
-        return minEval;
+        libererJeu(jeuCopie);
     }
+
+    libererCoupsEnfants(coupsEnfants);
+
+    return meilleurEval;
 }
 
 double minimax(Jeu* jeu, int profondeur, bool maximisant, double (*evaluation)(Jeu*)) {

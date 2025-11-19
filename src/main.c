@@ -12,21 +12,23 @@
 
 #define IA_MODE 2 // 0: Joueur vs Joueur, 1: Joueur vs IA, 2: IA vs IA
 
-#define PROFONDEUR_IA_1 4
+#define PROFONDEUR_IA_1 5
 #define ALGO_IA_1 minimax
 #define EVAL_IA_1 maxScore
 
-#define PROFONDEUR_IA_2 4
+#define PROFONDEUR_IA_2 5
 #define ALGO_IA_2 minimax
 #define EVAL_IA_2 maxScore
 
 #define JOUEUR_MACHINE 0
-#define DUREE_SLEEP 1
+#define DUREE_SLEEP 0
 
 
 int main() {
     Jeu* jeu = initJeu(JOUEUR_MACHINE); 
     afficherJeu(jeu);
+
+    int compteur = 0;
 
     while (!estFinPartie(jeu)) {
         Coup* coup = NULL;
@@ -72,8 +74,10 @@ int main() {
             printf("Temps de calcul : %.2f secondes\n", timeSpent);
 
         libererCoup(coup);
+        compteur++;
     }
 
     printf("Partie terminée.\n");
+    printf("nombre de coups joués : %d\n", compteur);
     return 0;
 }
