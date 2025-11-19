@@ -16,7 +16,7 @@
 #define ALGO_IA_1 minimax
 #define EVAL_IA_1 maxScore
 
-#define PROFONDEUR_IA_2 5
+#define PROFONDEUR_IA_2 6
 #define ALGO_IA_2 minimax
 #define EVAL_IA_2 maxScore
 
@@ -60,7 +60,7 @@ int main() {
             if (jeu->joueurActuel == 0) 
                 coup = choisirMeilleurCoup(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
             else 
-                coup = choisirMeilleurCoup(jeu, PROFONDEUR_IA_2, ALGO_IA_2, EVAL_IA_2);
+                coup = choisirAlphaBetaCoup(jeu, PROFONDEUR_IA_2, EVAL_IA_2);
             end = clock();
             timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
             sleep(DUREE_SLEEP);

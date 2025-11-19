@@ -177,6 +177,105 @@ double minimax(Jeu* jeu, int profondeur, bool maximisant, double (*evaluation)(J
 }
 
 
+double alphaBeta(Jeu* jeu, int profondeur, double alpha, double beta, bool maximisant, double (*evaluation)(Jeu*)) {
+    if (profondeur == 0) {
+        return evaluation(jeu);
+    } 
+
+    if (estFinPartie(jeu)) {
+        return evalFinPartie(jeu);
+    }
+
+    Coup** coupsEnfants = creerCoupsEnfants();
+    int nbCoupsEnfants = genererCoupsEnfants(jeu, coupsEnfants);
+
+    if (maximisant) {
+        double maxEval = -10000;
+
+        for (int i = 0; i < nbCoupsEnfants; i++) {
+            Jeu* jeuCopie = copierJeu(jeu);
+            jouerCoup(jeuCopie, coupsEnfants[i]);
+
+            double eval = alphaBeta(jeuCopie, profondeur - 1, alpha, beta, false, evaluation);
+
+            if (eval > maxEval) {
+                maxEval = eval;
+            }
+            if (eval > alpha) {
+                alpha = eval;
+            }
+            libererJeu(jeuCopie);
+
+            if (beta <= alpha) {
+                break; 
+            }
+        }
+
+        libererCoupsEnfants(coupsEnfants);
+
+        return maxEval;
+
+    } else {
+        double minEval = 10000;
+
+        for (int i = 0; i < nbCoupsEnfants; i++) {
+            Jeu* jeuCopie = copierJeu(jeu);
+            jouerCoup(jeuCopie, coupsEnfants[i]);
+
+            double eval = alphaBeta(jeuCopie, profondeur - 1, alpha, beta, true, evaluation);
+
+            if (eval < minEval) {
+                minEval = eval;
+            }
+            if (eval < beta) {
+                beta = eval;
+            }
+            libererJeu(jeuCopie);
+
+            if (beta <= alpha) {
+                break; 
+            }
+        }
+
+        libererCoupsEnfants(coupsEnfants);
+
+        return minEval;
+    }
+
+}
+
+
+Coup* choisirAlphaBetaCoup(Jeu* jeu, int profondeur, double (*evaluation)(Jeu*)) {
+    Coup* meilleurCoup = creerCoup(-1, -1); 
+    double meilleurScore = -10000;
+    const int signeRacine = (jeu->joueurActuel == 0) ? +1 : -1;
+
+    Coup** coupsEnfants = creerCoupsEnfants();
+    int nbCoupsEnfants = genererCoupsEnfants(jeu, coupsEnfants);
+
+    for (int i = 0; i < nbCoupsEnfants; i++) {
+
+        Jeu* jeuCopie = copierJeu(jeu);
+        jouerCoup(jeuCopie, coupsEnfants[i]);
+
+        bool estMax = (jeuCopie->joueurActuel == 0);
+
+        double score = signeRacine * alphaBeta(jeuCopie, profondeur - 1, -10000, 10000, estMax, evaluation);
+
+        if (score > meilleurScore) {
+            meilleurScore = score;
+            meilleurCoup->trou = coupsEnfants[i]->trou;
+            meilleurCoup->couleur = coupsEnfants[i]->couleur;
+        }
+
+        libererJeu(jeuCopie);
+    }
+
+    libererCoupsEnfants(coupsEnfants);
+
+    return meilleurCoup;
+}
+
 Coup* choisirMeilleurCoup(Jeu* jeu, int profondeur, double (*minimax)(Jeu*, int, bool, double (*)(Jeu*)), double (*evaluation)(Jeu*)) {
     Coup* meilleurCoup = creerCoup(-1, -1); 
     double meilleurScore = -10000;
