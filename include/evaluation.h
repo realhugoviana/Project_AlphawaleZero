@@ -9,6 +9,8 @@
 #include "jeu.h"
 
 double maxScore(Jeu* jeu);
+double evalMinChoix(Jeu* jeu);
+double evalMinChoix2(Jeu* jeu);
 double evalFinPartie(Jeu* jeu);
 
 #endif // EVALUATION_H

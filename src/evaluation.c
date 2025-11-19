@@ -45,3 +45,60 @@ double maxScore(Jeu* jeu) {
     return jeu->score[0] - jeu->score[1];
 }
 
+
+double evalMinChoix(Jeu* jeu) {
+    int mobilite = 0;
+
+    for (int trou = !jeu->joueurActuel; trou < 16; trou+=2) { 
+        if (jeu->rouge[trou] > 0) {
+            mobilite++;
+        }
+
+        if (jeu->bleu[trou] > 0) {
+            mobilite++;
+        }
+
+        if (jeu->transparent[trou] > 0) {
+            mobilite+=2;
+        }
+    }
+
+    int score = jeu->score[0] - jeu->score[1];
+
+    int signe = (jeu->joueurActuel == 0) ? -1 : 1;
+
+    double coefS = 1;
+    double coefM = 0.5;
+
+    return coefS * score + signe * coefM * mobilite;
+}
+
+
+double evalMinChoix2(Jeu* jeu) {
+    int mobilite = 0;
+
+    for (int trou = !jeu->joueurActuel; trou < 16; trou+=2) { 
+        if (jeu->rouge[trou] > 0) {
+            mobilite++;
+        }
+
+        if (jeu->bleu[trou] > 0) {
+            mobilite++;
+        }
+
+        if (jeu->transparent[trou] > 0) {
+            mobilite+=2;
+        }
+    }
+
+    int score = jeu->score[0] - jeu->score[1];
+
+    int signe = (jeu->joueurActuel == 0) ? -1 : 1;
+
+    double coefS = 1;
+    double coefM = 0.25;
+
+    return coefS * score + signe * coefM * mobilite;
+}
+
+

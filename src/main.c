@@ -13,12 +13,12 @@
 #define IA_MODE 2 // 0: Joueur vs Joueur, 1: Joueur vs IA, 2: IA vs IA
 
 #define PROFONDEUR_IA_1 5
-#define ALGO_IA_1 minimax
-#define EVAL_IA_1 maxScore
+#define ALGO_IA_1 alphaBeta
+#define EVAL_IA_1 evalMinChoix
 
-#define PROFONDEUR_IA_2 6
+#define PROFONDEUR_IA_2 5
 #define ALGO_IA_2 alphaBeta
-#define EVAL_IA_2 maxScore
+#define EVAL_IA_2 evalMinChoix2
 
 #define JOUEUR_MACHINE 0
 #define DUREE_SLEEP 0
