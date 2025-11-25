@@ -7,7 +7,16 @@
 #include "jeu.h"
 
 
-#define DEBUG_MODE 0   // mettre 0 pour désactiver
+/* ---------------------------------------------
+ *                    DEBUG
+ * ---------------------------------------------
+ * 
+ * DEBUG_MODE = 1  -> affichage des DEBUG_PRINT
+ * DEBUG_MODE = 0  -> désactiver
+ * 
+ */
+
+#define DEBUG_MODE 0  
 
 #if DEBUG_MODE
     #define DEBUG_PRINT(...) printf(__VA_ARGS__)
@@ -16,6 +25,12 @@
 #endif
 
 
+/* ---------------------------------------------
+ *   FONCTIONS D'INITIALISATION / DESTRUCTION
+ * ---------------------------------------------
+ */
+
+/* Initialisation du jeu */
 Jeu* initJeu(bool joueurMachine) {
     Jeu* jeu = (Jeu*)malloc(sizeof(Jeu));
 
@@ -35,11 +50,13 @@ Jeu* initJeu(bool joueurMachine) {
 }
 
 
+/* Libération du jeu */
 void libererJeu(Jeu* jeu) {
     free(jeu);
 }
 
 
+/* Création d'un coup */
 Coup* creerCoup(int trou, int couleur) {
     Coup* coup = (Coup*)malloc(sizeof(Coup));
     coup->trou = trou;
@@ -48,16 +65,24 @@ Coup* creerCoup(int trou, int couleur) {
 }
 
 
+/* Libération d'un coup */
 void libererCoup(Coup* coup) {
     free(coup);
 }
 
 
+/* ---------------------------------------------
+ *    OUTILS SUR LE JOUEUR / LES TROUS
+ * ---------------------------------------------
+ */
+
+/* Retourne l'indice de l'adversaire */
 bool donnerAdversaire(Jeu* jeu) {
     return !jeu->joueurActuel;
 }
 
 
+/* Ajoute une graine dans un trou */
 void ajouterGraine(Jeu* jeu, int trou, int couleur) {
     if (couleur == 0) {
         jeu->rouge[trou]++;
@@ -69,6 +94,7 @@ void ajouterGraine(Jeu* jeu, int trou, int couleur) {
 }
 
 
+/* Retire une graine dans un trou (à supprimer)*/
 void retirerGraine(Jeu* jeu, int trou, int couleur) {
     if (couleur == 0 && jeu->rouge[trou] > 0) {
         jeu->rouge[trou]--;
@@ -80,6 +106,10 @@ void retirerGraine(Jeu* jeu, int trou, int couleur) {
 }
 
 
+/**
+ * Met à 0 toutes les graines d'une couleur dans un trou.
+ * Retourne le nombre de graines prises.
+ */
 int prendreGraines(Jeu* jeu, int trou, int couleur) {
     int graines = 0;
     if (couleur == 0) {
@@ -96,24 +126,34 @@ int prendreGraines(Jeu* jeu, int trou, int couleur) {
 }
 
 
+/**
+ * Distribue les graines d'un trou pour une couleur selon les règles du jeu.
+ * Retourne l'indice du dernier trou où une graine a été déposée.
+ */
 int distribuerGraines(Jeu* jeu, int trou, int couleur) {
     DEBUG_PRINT("[DEBUG] Début de distribuerGraines(trou = %d, couleur = %d)\n", trou, couleur);
 
     int grainesCouleur = 0;
     int grainesTransparente = 0;
-    int step = (couleur % 2) + 1;
+
+    // R ou TR => step = 1, B ou TB => step = 2
+    int step = (couleur % 2) + 1; 
 
     DEBUG_PRINT("[DEBUG] Step pour la distribution = %d\n", step);
 
+    // On prend les graines de la couleur principale (R ou B)
     grainesCouleur = prendreGraines(jeu, trou, couleur % 2);
+
     DEBUG_PRINT("[DEBUG] Graines de couleur %d prises : %d\n", couleur % 2, grainesCouleur);
 
+    // Si on prend les transparentes (TR ou TB)
     if (couleur >= 2) {
         grainesTransparente = prendreGraines(jeu, trou, couleur);
         DEBUG_PRINT("[DEBUG] Graines transparentes prises : %d\n", grainesTransparente);
     }
 
     int trouActuel = (trou + 1) % 16;
+    
     DEBUG_PRINT("[DEBUG] Distribution commence au trou %d\n", trouActuel);
 
     // Distribution des graines transparentes
@@ -124,8 +164,9 @@ int distribuerGraines(Jeu* jeu, int trou, int couleur) {
         }
 
         ajouterGraine(jeu, trouActuel, 2);
-        DEBUG_PRINT("[DEBUG] Ajout d'une graine transparente au trou %d (restantes = %d)\n",
-               trouActuel, grainesTransparente - 1);
+        
+        DEBUG_PRINT("[DEBUG] Ajout d'une graine transparente au trou %d (restantes = %d)\n", trouActuel, grainesTransparente - 1);
+        
         grainesTransparente--;
         trouActuel = (trouActuel + step) % 16;
     }
@@ -138,14 +179,16 @@ int distribuerGraines(Jeu* jeu, int trou, int couleur) {
         }
 
         ajouterGraine(jeu, trouActuel, couleur % 2);
-        DEBUG_PRINT("[DEBUG] Ajout d'une graine de couleur %d au trou %d (restantes = %d)\n",
-               couleur % 2, trouActuel, grainesCouleur - 1);
+
+        DEBUG_PRINT("[DEBUG] Ajout d'une graine de couleur %d au trou %d (restantes = %d)\n", couleur % 2, trouActuel, grainesCouleur - 1);
+        
         grainesCouleur--;
         trouActuel = (trouActuel + step) % 16;
     }
 
     // Retour au dernier trou distribué
     trouActuel = (trouActuel - step + 16) % 16;
+
     DEBUG_PRINT("[DEBUG] Dernier trou distribué : %d\n", trouActuel);
     DEBUG_PRINT("[DEBUG] Fin de distribuerGraines()\n\n");
 
@@ -153,6 +196,7 @@ int distribuerGraines(Jeu* jeu, int trou, int couleur) {
 }
 
 
+/* Vide un trou */
 void viderTrou(Jeu* jeu, int trou) {
     jeu->rouge[trou] = 0;
     jeu->bleu[trou] = 0;
@@ -160,11 +204,16 @@ void viderTrou(Jeu* jeu, int trou) {
 }
 
 
+/* Retourne le nombre de graines total de graines (R+B+T) dans un trou */
 int recupererNbGrainesTotal(Jeu* jeu, int trou) {
     return jeu->rouge[trou] + jeu->bleu[trou] + jeu->transparent[trou];
 }
 
 
+/**
+ * Vérifie si le camp d'un joueur est affamé (aucun coup possible)
+ * Retourne true s'il n'y a AUCUNE graine sur ses trous.
+ */
 bool estAffame(Jeu* jeu, int adversaire) {
     int trou = adversaire;
     while (trou < 16) {
@@ -177,13 +226,20 @@ bool estAffame(Jeu* jeu, int adversaire) {
 }
 
 
+/**
+ * On commence au dernier trou où on a distribué.
+ * On capture tant que les trous successifs contiennent 2 ou 3 graines,
+ * en remontant trou par trou (sens inverse).
+ */
 void capturerGraines(Jeu* jeu, int trou) {
     DEBUG_PRINT("[DEBUG] Début de capturerGraines(trou = %d)\n", trou);
 
     int trouActuel = trou;
     int nbGrainesTotal = recupererNbGrainesTotal(jeu, trouActuel);
+
     DEBUG_PRINT("[DEBUG] Nombre de graines initial dans le trou %d : %d\n", trouActuel, nbGrainesTotal);
 
+    // Capture en remontant tant que les trous contiennent 2 ou 3 graines 
     while (nbGrainesTotal == 2 || nbGrainesTotal == 3) {
         DEBUG_PRINT("[DEBUG] → Trou %d contient %d graines → capture !\n", trouActuel, nbGrainesTotal);
 
@@ -192,28 +248,32 @@ void capturerGraines(Jeu* jeu, int trou) {
         jeu->score[jeu->joueurActuel] += nbGrainesTotal;
 
         DEBUG_PRINT("[DEBUG]    - Trou %d vidé.\n", trouActuel);
-        DEBUG_PRINT("[DEBUG]    - Score joueur %d = %d\n", 
-               jeu->joueurActuel, jeu->score[jeu->joueurActuel]);
+        DEBUG_PRINT("[DEBUG]    - Score joueur %d = %d\n", jeu->joueurActuel, jeu->score[jeu->joueurActuel]);
 
         // Passer au trou précédent (boucle circulaire)
         trouActuel = (trouActuel - 1 + 16) % 16;
         nbGrainesTotal = recupererNbGrainesTotal(jeu, trouActuel);
 
-        DEBUG_PRINT("[DEBUG]    - Passage au trou %d (nbGraines = %d)\n",
-                trouActuel, nbGrainesTotal);
+        DEBUG_PRINT("[DEBUG]    - Passage au trou %d (nbGraines = %d)\n", trouActuel, nbGrainesTotal);
     }
 
-
+    // Si l'adversaire est affamé, le joueur courant prend toutes les graines restantes
     if (estAffame(jeu, donnerAdversaire(jeu))) {
-        // donner les graines restantes à joueur
-        jeu->score[jeu->joueurActuel] += 96 - (jeu->score[0] + jeu->score[1]);
+        int totalPris = 96 - (jeu->score[0] + jeu->score[1]);
+        jeu->score[jeu->joueurActuel] += totalPris;
+
+        DEBUG_PRINT("[DEBUG] Adversaire affamé → capture de toutes les graines restantes (%d)\n", totalPris);
     }
 
 
-    DEBUG_PRINT("[DEBUG] Fin de la boucle de capture. Condition non remplie (trou %d : %d graines)\n",
-           trouActuel, nbGrainesTotal);
-   DEBUG_PRINT("[DEBUG] Fin de capturerGraines()\n\n");
+    DEBUG_PRINT("[DEBUG] Fin de la boucle de capture. Condition non remplie (trou %d : %d graines)\n", trouActuel, nbGrainesTotal);
+    DEBUG_PRINT("[DEBUG] Fin de capturerGraines()\n\n");
 }
+
+/* ---------------------------------------------
+ *    LECTURE / ÉCRITURE D'UN COUP
+ * ---------------------------------------------
+ */
 
 
 Coup* lireCoup(Jeu* jeu) {
@@ -259,6 +319,22 @@ Coup* lireCoup(Jeu* jeu) {
     DEBUG_PRINT("         -> 0 = Rouge, 1 = Bleu, 2 = Transparent Rouge, 3 = Transparent Bleu\n");
 
     return creerCoup(trou, couleur);
+}
+
+
+void sortirCoup(Coup* coup) {
+    char* couleurChar;
+    if (coup->couleur == 0) {
+        couleurChar = "R";
+    } else if (coup->couleur == 1) {
+        couleurChar = "B";
+    } else if (coup->couleur == 2) {
+        couleurChar = "TR";
+    } else {
+        couleurChar = "TB"; 
+    }
+
+    printf("%d%s\n", coup->trou + 1, couleurChar);
 }
 
 
@@ -341,19 +417,4 @@ void jouerCoup(Jeu* jeu, Coup* coup) {
     capturerGraines(jeu, dernier_trou);
 
     jeu->joueurActuel = donnerAdversaire(jeu);
-}
-
-void sortirCoup(Coup* coup) {
-    char* couleurChar;
-    if (coup->couleur == 0) {
-        couleurChar = "R";
-    } else if (coup->couleur == 1) {
-        couleurChar = "B";
-    } else if (coup->couleur == 2) {
-        couleurChar = "TR";
-    } else {
-        couleurChar = "TB"; 
-    }
-
-    printf("%d%s\n", coup->trou + 1, couleurChar);
 }
