@@ -14,10 +14,10 @@
 
 #define PROFONDEUR_IA_1 5
 #define ALGO_IA_1 alphaBeta
-#define EVAL_IA_1 evalMinChoix
+#define EVAL_IA_1 evalMinChoix2
 
-#define PROFONDEUR_IA_2 5
-#define ALGO_IA_2 alphaBeta
+#define PROFONDEUR_IA_2 20
+#define ALGO_IA_2 alphaBetaVariable
 #define EVAL_IA_2 evalMinChoix2
 
 #define JOUEUR_MACHINE 0
@@ -75,9 +75,9 @@ int main() {
 
         libererCoup(coup);
         compteur++;
+        printf("Coup numéro : %d\n", compteur);
     }
 
     printf("Partie terminée.\n");
-    printf("nombre de coups joués : %d\n", compteur);
     return 0;
 }
