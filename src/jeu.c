@@ -94,18 +94,6 @@ void ajouterGraine(Jeu* jeu, int trou, int couleur) {
 }
 
 
-/* Retire une graine dans un trou (à supprimer)*/
-void retirerGraine(Jeu* jeu, int trou, int couleur) {
-    if (couleur == 0 && jeu->rouge[trou] > 0) {
-        jeu->rouge[trou]--;
-    } else if (couleur == 1 && jeu->bleu[trou] > 0) {
-        jeu->bleu[trou]--;
-    } else if (couleur == 2 && jeu->transparent[trou] > 0) {
-        jeu->transparent[trou]--;
-    }
-}
-
-
 /**
  * Met à 0 toutes les graines d'une couleur dans un trou.
  * Retourne le nombre de graines prises.
