@@ -24,9 +24,7 @@ double evalFinPartie(Jeu* jeu) {
     if (jeu->score[0] >= 49) {
         return gainMax;
     } else if (jeu->score[1] >= 49) {
-        return gainMin;
-    } else if (jeu->score[0] == 40 && jeu->score[1] == 40) {
-        return matchNul; 
+        return gainMin; 
     } else if (96 - (jeu->score[0] + jeu->score[1]) < 10) {
         if (jeu->score[0] > jeu->score[1]) {
             return gainMax;

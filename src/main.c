@@ -14,13 +14,13 @@
 
 #define PROFONDEUR_IA_1 5
 #define ALGO_IA_1 alphaBeta
-#define EVAL_IA_1 evalMinChoix2
+#define EVAL_IA_1 evalMinChoix
 
-#define PROFONDEUR_IA_2 20
-#define ALGO_IA_2 alphaBetaVariable
-#define EVAL_IA_2 evalMinChoix2
+#define PROFONDEUR_IA_2 5
+#define ALGO_IA_2 alphaBeta
+#define EVAL_IA_2 evalMinChoix
 
-#define JOUEUR_MACHINE 0
+#define JOUEUR_MACHINE 1
 #define DUREE_SLEEP 0
 
 
