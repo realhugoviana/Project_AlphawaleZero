@@ -305,8 +305,9 @@ Coup* choisirMeilleurCoup(Jeu* jeu, int profondeur, double (*minimax)(Jeu*, int,
     return meilleurCoup;
 }
 
-Coup* choisirMeilleurCoup2(Jeu* jeu, int profondeur, double (*minimax)(Jeu*, int, double, double, bool, double (*)(Jeu*)), double (*evaluation)(Jeu*)) {
+Coup* choisirMeilleurCoupItDeep(Jeu* jeu, int profondeurMax, double (*minimax)(Jeu*, int, double, double, bool, double (*)(Jeu*)), double (*evaluation)(Jeu*)) {
     Coup* meilleurCoup = creerCoup(-1, -1); 
+    int indexMeilleurCoup = -1;
     double meilleurScore = -10000;
     const int signeRacine = (jeu->joueurActuel == 0) ? +1 : -1;
 
@@ -315,36 +316,31 @@ Coup* choisirMeilleurCoup2(Jeu* jeu, int profondeur, double (*minimax)(Jeu*, int
 
     printf("Nombre de coups enfants générés : %d\n", nbCoupsEnfants);
 
-    if (nbCoupsEnfants < 25) {
-        profondeur++;
-    }
-    if (nbCoupsEnfants < 15) {
-        profondeur++;
-    }
-    if (nbCoupsEnfants < 10) {
-        profondeur++;
-    }
-    if (nbCoupsEnfants < 5) {
-        profondeur++;
-    }
-    
+    for(int profondeur = 1; profondeur <= profondeurMax; profondeur++) {
+        for (int i = 0; i < nbCoupsEnfants; i++) {
 
-    for (int i = 0; i < nbCoupsEnfants; i++) {
+            Jeu* jeuCopie = copierJeu(jeu);
+            jouerCoup(jeuCopie, coupsEnfants[i]);
 
-        Jeu* jeuCopie = copierJeu(jeu);
-        jouerCoup(jeuCopie, coupsEnfants[i]);
+            bool estMax = (jeuCopie->joueurActuel == 0);
 
-        bool estMax = (jeuCopie->joueurActuel == 0);
+            double score = signeRacine * minimax(jeuCopie, profondeur - 1, -10000, 10000, estMax, evaluation);
 
-        double score = signeRacine * minimax(jeuCopie, profondeur - 1, -10000, 10000, estMax, evaluation);
+            if (score > meilleurScore) {
+                meilleurScore = score;
+                meilleurCoup->trou = coupsEnfants[i]->trou;
+                meilleurCoup->couleur = coupsEnfants[i]->couleur;
+                indexMeilleurCoup = i;
+            }
 
-        if (score > meilleurScore) {
-            meilleurScore = score;
-            meilleurCoup->trou = coupsEnfants[i]->trou;
-            meilleurCoup->couleur = coupsEnfants[i]->couleur;
+            libererJeu(jeuCopie);
         }
-
-        libererJeu(jeuCopie);
+        // trie les coups
+        Coup* temp = coupsEnfants[0];
+        coupsEnfants[0] = coupsEnfants[indexMeilleurCoup];
+        coupsEnfants[indexMeilleurCoup] = temp;
+        meilleurScore = -10000; // reset meilleur score for next depth
+        indexMeilleurCoup = -1;
     }
 
     libererCoupsEnfants(coupsEnfants);

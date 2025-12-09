@@ -12,11 +12,11 @@
 
 #define IA_MODE 2 // 0: Joueur vs Joueur, 1: Joueur vs IA, 2: IA vs IA
 
-#define PROFONDEUR_IA_1 5
+#define PROFONDEUR_IA_1 6
 #define ALGO_IA_1 alphaBeta
 #define EVAL_IA_1 evalMinChoix
 
-#define PROFONDEUR_IA_2 5
+#define PROFONDEUR_IA_2 6
 #define ALGO_IA_2 alphaBeta
 #define EVAL_IA_2 evalMinChoix
 
@@ -58,7 +58,7 @@ int main() {
         else if (IA_MODE == 2) {
             start = clock();
             if (jeu->joueurActuel == 0) 
-                coup = choisirMeilleurCoup(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
+                coup = choisirMeilleurCoup2(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
             else 
                 coup = choisirMeilleurCoup(jeu, PROFONDEUR_IA_2, ALGO_IA_2, EVAL_IA_2);
             end = clock();
