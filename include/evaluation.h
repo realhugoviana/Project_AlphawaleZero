@@ -8,6 +8,8 @@
 #include <stdbool.h>
 #include "jeu.h"
 
+typedef struct Jeu Jeu;
+
 double maxScore(Jeu* jeu);
 double evalMinChoix(Jeu* jeu);
 double evalMinChoix2(Jeu* jeu);

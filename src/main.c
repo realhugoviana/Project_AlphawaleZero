@@ -16,8 +16,8 @@
 #define ALGO_IA_1 alphaBeta
 #define EVAL_IA_1 evalMinChoix
 
-#define PROFONDEUR_IA_2 6
-#define ALGO_IA_2 alphaBeta
+#define PROFONDEUR_IA_2 2
+#define ALGO_IA_2 alphaBetaVariable
 #define EVAL_IA_2 evalMinChoix
 
 #define JOUEUR_MACHINE 1
@@ -58,9 +58,9 @@ int main() {
         else if (IA_MODE == 2) {
             start = clock();
             if (jeu->joueurActuel == 0) 
-                coup = choisirMeilleurCoup2(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
+                coup = choisirMeilleurCoupIteratif(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
             else 
-                coup = choisirMeilleurCoup(jeu, PROFONDEUR_IA_2, ALGO_IA_2, EVAL_IA_2);
+                coup = choisirMeilleurCoupIteratifVariable(jeu, PROFONDEUR_IA_2, ALGO_IA_2, EVAL_IA_2);
             end = clock();
             timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
             sleep(DUREE_SLEEP);
@@ -71,7 +71,7 @@ int main() {
         sortirCoup(coup);
 
         if (IA_MODE != 0) 
-            printf("Temps de calcul : %.2f secondes\n", timeSpent);
+            printf("Temps de calcul : %.8f secondes\n", timeSpent);
 
         libererCoup(coup);
         compteur++;

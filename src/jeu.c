@@ -390,6 +390,7 @@ Jeu* copierJeu(const Jeu* src) {
 
     dst->joueurMachine = src->joueurMachine;
     dst->joueurActuel = src->joueurActuel;
+    dst->t = src->t;
 
     return dst;
 }

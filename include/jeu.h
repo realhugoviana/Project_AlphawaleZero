@@ -6,19 +6,21 @@
 #include <string.h>  
 #include <ctype.h> 
 #include <stdbool.h>
+#include "minimax.h"
 
-typedef struct {
+typedef struct Coup{
     int trou;
     int couleur;
 } Coup;
 
-typedef struct {
+typedef struct Jeu {
     int rouge[16];
     int bleu[16];
     int transparent[16];
     int score[2];
     bool joueurMachine;
     bool joueurActuel;
+    Temps t;
 } Jeu;
 
 Jeu* initJeu(bool joueurMachine);
