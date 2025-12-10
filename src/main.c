@@ -28,8 +28,6 @@ int main() {
     Jeu* jeu = initJeu(JOUEUR_MACHINE); 
     afficherJeu(jeu);
 
-    int compteur = 0;
-
     while (!estFinPartie(jeu)) {
         Coup* coup = NULL;
         double timeSpent = 0.0;
@@ -74,8 +72,7 @@ int main() {
             printf("Temps de calcul : %.8f secondes\n", timeSpent);
 
         libererCoup(coup);
-        compteur++;
-        printf("Coup numéro : %d\n", compteur);
+        printf("Coup numéro : %d\n", jeu->nbCoups);
     }
 
     printf("Partie terminée.\n");

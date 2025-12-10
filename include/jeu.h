@@ -21,6 +21,7 @@ typedef struct Jeu {
     bool joueurMachine;
     bool joueurActuel;
     Temps t;
+    int nbCoups;
 } Jeu;
 
 Jeu* initJeu(bool joueurMachine);

@@ -46,6 +46,8 @@ Jeu* initJeu(bool joueurMachine) {
     jeu->joueurMachine = joueurMachine;
     jeu->joueurActuel = 0;
 
+    jeu->nbCoups = 0;
+
     return jeu;
 }
 
@@ -364,6 +366,10 @@ void afficherJeu(Jeu* jeu) {
 
 
 bool estFinPartie(Jeu* jeu) {
+    if (jeu->nbCoups >= 400) {
+        return true;
+    }
+
     if (jeu->score[0] >= 49) {
         return true;
     } else if (jeu->score[1] >= 49) {
@@ -391,6 +397,7 @@ Jeu* copierJeu(const Jeu* src) {
     dst->joueurMachine = src->joueurMachine;
     dst->joueurActuel = src->joueurActuel;
     dst->t = src->t;
+    dst->nbCoups = src->nbCoups;
 
     return dst;
 }
@@ -404,4 +411,5 @@ void jouerCoup(Jeu* jeu, Coup* coup) {
     capturerGraines(jeu, dernier_trou);
 
     jeu->joueurActuel = donnerAdversaire(jeu);
+    jeu->nbCoups++;
 }
