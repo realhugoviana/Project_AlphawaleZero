@@ -70,6 +70,14 @@ void libererCoupsEnfants(Coup** coupsEnfants) {
 }
 
 
+void verifierFinDuTemps(Temps* t) {
+    double tempsEcoule = (double)(clock() - t->debut) / CLOCKS_PER_SEC;
+    if (tempsEcoule >= t->limiteTemps) {
+        t->estFinTemps = true;
+    }
+}
+
+
 double minimax(Jeu* jeu, int profondeur, double alpha, double beta, bool maximisant, double (*evaluation)(Jeu*)) {
     if (profondeur == 0) {
         return evaluation(jeu);
@@ -349,14 +357,6 @@ Coup* choisirMeilleurCoupIteratif(Jeu* jeu, int profondeurMax, double (*minimax)
     libererCoupsEnfants(coupsEnfants);
 
     return meilleurCoup;
-}
-
-
-void verifierFinDuTemps(Temps* t) {
-    double tempsEcoule = (double)(clock() - t->debut) / CLOCKS_PER_SEC;
-    if (tempsEcoule >= t->limiteTemps) {
-        t->estFinTemps = true;
-    }
 }
 
 
