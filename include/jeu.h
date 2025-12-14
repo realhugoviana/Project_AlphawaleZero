@@ -32,6 +32,8 @@ void libererJeu(Jeu* jeu);
 
 Coup* creerCoup(int trou, int couleur);
 
+Coup* creerCoupAleatoire(Jeu* jeu);
+
 void libererCoup(Coup* coup);
  
 int recupererNbGrainesTotal(Jeu* jeu, int trou);

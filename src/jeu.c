@@ -413,3 +413,35 @@ void jouerCoup(Jeu* jeu, Coup* coup) {
     jeu->joueurActuel = donnerAdversaire(jeu);
     jeu->nbCoups++;
 }
+
+
+// Fonction pour générer un coup aléatoire lors du plogeon du MCTS
+Coup* creerCoupAleatoire(Jeu* jeu) {
+    if (estFinPartie(jeu))
+        return creerCoup(-1, -1);
+
+    bool coupJouable = false;
+
+    int trou;
+    int couleur;
+
+    while (!coupJouable) {
+        trou = rand() % 8 + jeu->joueurActuel;
+        couleur = rand() % 4;
+
+        if (couleur == 0) {
+            if (jeu->rouge[trou] > 0)
+                coupJouable = true;
+        } else if (couleur == 1) {
+            if (jeu->bleu[trou] > 0) {
+                coupJouable = true;
+            }
+        } else {
+            if (jeu->transparent[trou] > 0) {
+                coupJouable = true;
+            }
+        }
+    }
+
+    return creerCoup(trou, couleur);
+}
