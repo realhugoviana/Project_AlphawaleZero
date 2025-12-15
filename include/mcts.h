@@ -21,4 +21,6 @@ typedef struct NoeudMCTS {
     int nbEnfants;
 } NoeudMCTS;
 
+Coup* choisirMeilleurCoupMCTS(Jeu* jeu, int limiteTempsInt, double (*minimax)(Jeu*, int, double, double, bool, double (*)(Jeu*)), double (*evaluation)(Jeu*));
+
 #endif // MCTS_H
