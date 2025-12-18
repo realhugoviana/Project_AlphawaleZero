@@ -48,4 +48,10 @@ void afficherJeu(Jeu* jeu);
 
 void sortirCoup(Coup* coup);
 
+int genererCoupsEnfants(Jeu* jeu, Coup** coupsEnfants);
+
+Coup** creerCoupsEnfants();
+
+void libererCoupsEnfants(Coup** coupsEnfants);
+
 #endif // JEU_H

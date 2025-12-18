@@ -12,7 +12,7 @@
 #include "mcts.h"
 
 
-#define DEBUG_MODE 1   // mettre 0 pour désactiver
+#define DEBUG_MODE 0  // mettre 0 pour désactiver
 
 #if DEBUG_MODE
     #define DEBUG_PRINT(...) printf(__VA_ARGS__)
@@ -96,18 +96,30 @@ double plongeon(Jeu* jeu, double (*evaluation)(Jeu*), int profondeurMax, int jou
         }
 
         Coup* coupAleatoire = creerCoupAleatoire(jeuCopie);
-        DEBUG_PRINT("Profondeur %d: coup aléatoire (trou=%d, couleur=%d)\n", d, coupAleatoire->trou, coupAleatoire->couleur);
 
+        // if (coupAleatoire->couleur == -1){
+        //     break;
+        // }
+
+        DEBUG_PRINT("Profondeur %d: coup aléatoire (trou=%d, couleur=%d)\n", d, coupAleatoire->trou, coupAleatoire->couleur);
         jouerCoup(jeuCopie, coupAleatoire);
         libererCoup(coupAleatoire);
     }
 
-    double score = evaluation(jeuCopie);
+    double score;
+    if (estFinPartie(jeuCopie)) {
+        score = evalFinPartie(jeuCopie);
+    }
+    else {
+        score = evaluation(jeuCopie);
+    }
+
+    score = (joueurRacine == 0 ? score : -score);
     DEBUG_PRINT("Score évalué après plongeon: %.2f\n", score);
 
     libererJeu(jeuCopie);
 
-    return (joueurRacine == 0 ? score : -score);
+    return score;
 }
 
 double ucb1(NoeudMCTS* noeud, int N) {
@@ -200,14 +212,17 @@ Coup* choisirMeilleurCoupMCTS(Jeu* jeu, int limiteTempsInt, double (*minimax)(Je
     jeu->t.limiteTemps = limiteTempsDouble; 
     jeu->t.estFinTemps = false;
     int counter = 0;
-    while(!t.estFinTemps) {
+    while(!jeu->t.estFinTemps) {
         DEBUG_PRINT("Début parcours MCTS\n");
-        parcoursMCTS(racine, evaluation, 10, racine->jeu->joueurActuel);
+        parcoursMCTS(racine, evaluation, 100, racine->jeu->joueurActuel);
         DEBUG_PRINT("Fin parcours MCTS\n");
         counter++;
         DEBUG_PRINT("Nombre de parcours effectués : %d\n", counter);
 
         verifierFinDuTemps(&jeu->t);
+        DEBUG_PRINT("Vérification du temps: limiteTemps=%.2f, temps écoulé=%.2f\n", 
+                    jeu->t.limiteTemps, ((double)(clock() - jeu->t.debut)) / CLOCKS_PER_SEC);
+        DEBUG_PRINT("Vérification du temps: estFinTemps=%d\n", jeu->t.estFinTemps);
     }
 
     double meilleurScore = -100000.0;

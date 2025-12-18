@@ -19,57 +19,6 @@
 #endif
 
 
-int genererCoupsEnfants(Jeu* jeu, Coup** coupsEnfants) {
-    int nbCoupsEnfants = 0; // Nombre de coups générés
-
-    for (int trou = jeu->joueurActuel; trou < 16; trou+= 2) { // += 2 car on saute les trous adverse
-        if (jeu->rouge[trou] > 0) {
-            coupsEnfants[nbCoupsEnfants]->trou = trou;
-            coupsEnfants[nbCoupsEnfants]->couleur = 0;
-            nbCoupsEnfants++;
-        }
-
-        if (jeu->bleu[trou] > 0) {
-            coupsEnfants[nbCoupsEnfants]->trou = trou;
-            coupsEnfants[nbCoupsEnfants]->couleur = 1;
-            nbCoupsEnfants++;
-        }
-
-        if (jeu->transparent[trou] > 0) {
-            coupsEnfants[nbCoupsEnfants]->trou = trou;
-            coupsEnfants[nbCoupsEnfants]->couleur = 2;
-            nbCoupsEnfants++;
-
-            coupsEnfants[nbCoupsEnfants]->trou = trou;
-            coupsEnfants[nbCoupsEnfants]->couleur = 3;
-            nbCoupsEnfants++;
-        }
-    }
-
-    return nbCoupsEnfants; // Retourne le nombre de coups enfant pour connaitre la largeur de l'arbre
-}
-
-
-Coup** creerCoupsEnfants() {
-    Coup** coupsEnfants = (Coup**)malloc(32 * sizeof(Coup*)); // 8 trous * 4 couleurs possibles = 32 coups max
-    
-    for (int i = 0; i < 32; i++) {
-        coupsEnfants[i] = creerCoup(0, 0); // Initialisation des coups
-    }
-
-    return coupsEnfants;
-}
-
-
-void libererCoupsEnfants(Coup** coupsEnfants) {
-    for (int i = 0; i < 32; i++) {
-        libererCoup(coupsEnfants[i]);
-    }
-
-    free(coupsEnfants);
-}
-
-
 void verifierFinDuTemps(Temps* t) {
     double tempsEcoule = (double)(clock() - t->debut) / CLOCKS_PER_SEC;
     if (tempsEcoule >= t->limiteTemps) {

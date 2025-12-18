@@ -16,7 +16,7 @@
  * 
  */
 
-#define DEBUG_MODE 0  
+#define DEBUG_MODE 0 
 
 #if DEBUG_MODE
     #define DEBUG_PRINT(...) printf(__VA_ARGS__)
@@ -407,41 +407,118 @@ void jouerCoup(Jeu* jeu, Coup* coup) {
     int trou = coup->trou;
     int couleur = coup->couleur;
 
+    DEBUG_PRINT("Joueur %d joue: trou=%d, couleur=%d\n", jeu->joueurActuel, trou, couleur);
+
     int dernier_trou = distribuerGraines(jeu, trou, couleur);
+    DEBUG_PRINT("Dernier trou après distribution: %d\n", dernier_trou);
+
     capturerGraines(jeu, dernier_trou);
+    DEBUG_PRINT("État du plateau après capture: joueur %d\n", jeu->joueurActuel);
+    //afficherJeu(jeu); // optionnel pour un affichage complet à chaque coup
 
     jeu->joueurActuel = donnerAdversaire(jeu);
     jeu->nbCoups++;
+
+    DEBUG_PRINT("Changement de joueur: joueurActuel=%d, nbCoups=%d\n", jeu->joueurActuel, jeu->nbCoups);
 }
 
+int genererCoupsEnfants(Jeu* jeu, Coup** coupsEnfants) {
+    int nbCoupsEnfants = 0; // Nombre de coups générés
 
-// Fonction pour générer un coup aléatoire lors du plogeon du MCTS
-Coup* creerCoupAleatoire(Jeu* jeu) {
-    if (estFinPartie(jeu))
-        return creerCoup(-1, -1);
+    for (int trou = jeu->joueurActuel; trou < 16; trou+= 2) { // += 2 car on saute les trous adverse
+        if (jeu->rouge[trou] > 0) {
+            coupsEnfants[nbCoupsEnfants]->trou = trou;
+            coupsEnfants[nbCoupsEnfants]->couleur = 0;
+            nbCoupsEnfants++;
+        }
 
-    bool coupJouable = false;
+        if (jeu->bleu[trou] > 0) {
+            coupsEnfants[nbCoupsEnfants]->trou = trou;
+            coupsEnfants[nbCoupsEnfants]->couleur = 1;
+            nbCoupsEnfants++;
+        }
 
-    int trou;
-    int couleur;
+        if (jeu->transparent[trou] > 0) {
+            coupsEnfants[nbCoupsEnfants]->trou = trou;
+            coupsEnfants[nbCoupsEnfants]->couleur = 2;
+            nbCoupsEnfants++;
 
-    while (!coupJouable) {
-        trou = rand() % 8 + jeu->joueurActuel;
-        couleur = rand() % 4;
-
-        if (couleur == 0) {
-            if (jeu->rouge[trou] > 0)
-                coupJouable = true;
-        } else if (couleur == 1) {
-            if (jeu->bleu[trou] > 0) {
-                coupJouable = true;
-            }
-        } else {
-            if (jeu->transparent[trou] > 0) {
-                coupJouable = true;
-            }
+            coupsEnfants[nbCoupsEnfants]->trou = trou;
+            coupsEnfants[nbCoupsEnfants]->couleur = 3;
+            nbCoupsEnfants++;
         }
     }
 
-    return creerCoup(trou, couleur);
+    return nbCoupsEnfants; // Retourne le nombre de coups enfant pour connaitre la largeur de l'arbre
+}
+
+
+Coup** creerCoupsEnfants() {
+    Coup** coupsEnfants = (Coup**)malloc(32 * sizeof(Coup*)); // 8 trous * 4 couleurs possibles = 32 coups max
+    
+    for (int i = 0; i < 32; i++) {
+        coupsEnfants[i] = creerCoup(0, 0); // Initialisation des coups
+    }
+
+    return coupsEnfants;
+}
+
+
+void libererCoupsEnfants(Coup** coupsEnfants) {
+    for (int i = 0; i < 32; i++) {
+        libererCoup(coupsEnfants[i]);
+    }
+
+    free(coupsEnfants);
+}
+
+// // Fonction pour générer un coup aléatoire lors du plogeon du MCTS
+// Coup* creerCoupAleatoire(Jeu* jeu) {
+//     if (estFinPartie(jeu))
+//         return creerCoup(-1, -1);
+
+//     bool coupJouable = false;
+
+//     int trou;
+//     int couleur;
+
+//     while (!coupJouable) {
+//         trou = rand() % 8 + jeu->joueurActuel;
+//         couleur = rand() % 4;
+
+//         if (couleur == 0) {
+//             if (jeu->rouge[trou] > 0)
+//                 coupJouable = true;
+//         } else if (couleur == 1) {
+//             if (jeu->bleu[trou] > 0) {
+//                 coupJouable = true;
+//             }
+//         } else {
+//             if (jeu->transparent[trou] > 0) {
+//                 coupJouable = true;
+//             }
+//         }
+//     }
+
+//     return creerCoup(trou, couleur);
+// }
+
+// Fonction pour générer un coup aléatoire lors du plogeon du MCTS
+Coup* creerCoupAleatoire(Jeu* jeu) {
+    Coup* coupAleatoire = creerCoup(-1, -1);
+
+    if (estFinPartie(jeu))
+        return coupAleatoire;
+
+    Coup** coupsPossibles = creerCoupsEnfants();
+    int nbCoupsPossibles = genererCoupsEnfants(jeu, coupsPossibles);
+
+    int indexCoupAleatoire = rand() % nbCoupsPossibles;
+
+    coupAleatoire->trou = coupsPossibles[indexCoupAleatoire]->trou;
+    coupAleatoire->couleur = coupsPossibles[indexCoupAleatoire]->couleur;
+
+    libererCoupsEnfants(coupsPossibles);
+
+    return coupAleatoire;
 }
