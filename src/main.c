@@ -14,12 +14,12 @@
 
 #define IA_MODE 2 // 0: Joueur vs Joueur, 1: Joueur vs IA, 2: IA vs IA, 3: Joueur vs IA avec MQTT
 
-#define PROFONDEUR_IA_1 2
+#define PROFONDEUR_IA_1 1
 #define ALGO_IA_1 alphaBetaVariable
 #define EVAL_IA_1 evalMinChoix
 
-#define PROFONDEUR_IA_2 2
-#define ALGO_IA_2 alphaBeta
+#define PROFONDEUR_IA_2 1
+#define ALGO_IA_2 alphaBetaVariable
 #define EVAL_IA_2 evalMinChoix
 
 #define JOUEUR_MACHINE 1
@@ -143,9 +143,9 @@ int main() {
         else if (IA_MODE == 2) {
             start = clock();
             if (jeu->joueurActuel == 0) 
-                coup = choisirMeilleurCoupMCTS(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
+                coup = choisirMeilleurCoupIteratifVariable(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
             else 
-                coup = choisirMeilleurCoupIteratifVariable(jeu, PROFONDEUR_IA_2, ALGO_IA_2, EVAL_IA_2);
+                coup = choisirMeilleurCoupMCTS(jeu, PROFONDEUR_IA_2, ALGO_IA_2, EVAL_IA_2);
             end = clock();
             timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
             sleep(DUREE_SLEEP);
