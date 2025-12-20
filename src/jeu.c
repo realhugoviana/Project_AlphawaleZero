@@ -16,7 +16,7 @@
  * 
  */
 
-#define DEBUG_MODE 0 
+#define DEBUG_MODE 0
 
 #if DEBUG_MODE
     #define DEBUG_PRINT(...) printf(__VA_ARGS__)
@@ -339,6 +339,23 @@ int donnerGagnant(Jeu* jeu) {
 }
 
 
+bool estFinPartie(Jeu* jeu) {
+    if (jeu->nbCoups >= 400) {
+        return true;
+    }
+
+    if (jeu->score[0] >= 49) {
+        return true;
+    } else if (jeu->score[1] >= 49) {
+        return true;
+    } else if (96 - (jeu->score[0] + jeu->score[1]) < 10) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
 void afficherJeu(Jeu* jeu) {
     printf("=== ÉTAT DU JEU ===\n\n");
 
@@ -362,23 +379,6 @@ void afficherJeu(Jeu* jeu) {
     }
 
     printf("====================\n");
-}
-
-
-bool estFinPartie(Jeu* jeu) {
-    if (jeu->nbCoups >= 400) {
-        return true;
-    }
-
-    if (jeu->score[0] >= 49) {
-        return true;
-    } else if (jeu->score[1] >= 49) {
-        return true;
-    } else if (96 - (jeu->score[0] + jeu->score[1]) < 10) {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 
@@ -472,43 +472,15 @@ void libererCoupsEnfants(Coup** coupsEnfants) {
     free(coupsEnfants);
 }
 
-// // Fonction pour générer un coup aléatoire lors du plogeon du MCTS
-// Coup* creerCoupAleatoire(Jeu* jeu) {
-//     if (estFinPartie(jeu))
-//         return creerCoup(-1, -1);
-
-//     bool coupJouable = false;
-
-//     int trou;
-//     int couleur;
-
-//     while (!coupJouable) {
-//         trou = rand() % 8 + jeu->joueurActuel;
-//         couleur = rand() % 4;
-
-//         if (couleur == 0) {
-//             if (jeu->rouge[trou] > 0)
-//                 coupJouable = true;
-//         } else if (couleur == 1) {
-//             if (jeu->bleu[trou] > 0) {
-//                 coupJouable = true;
-//             }
-//         } else {
-//             if (jeu->transparent[trou] > 0) {
-//                 coupJouable = true;
-//             }
-//         }
-//     }
-
-//     return creerCoup(trou, couleur);
-// }
 
 // Fonction pour générer un coup aléatoire lors du plogeon du MCTS
 Coup* creerCoupAleatoire(Jeu* jeu) {
     Coup* coupAleatoire = creerCoup(-1, -1);
 
-    if (estFinPartie(jeu))
+    if (estFinPartie(jeu)) {
+        printf("Fin de partie");
         return coupAleatoire;
+    }
 
     Coup** coupsPossibles = creerCoupsEnfants();
     int nbCoupsPossibles = genererCoupsEnfants(jeu, coupsPossibles);

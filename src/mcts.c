@@ -93,12 +93,15 @@ double plongeon(Jeu* jeu, double (*evaluation)(Jeu*), int profondeurMax, int jou
     double score;
     DEBUG_PRINT("Début plongeon: joueurRacine=%d, profondeurMax=%d\n", joueurRacine, profondeurMax);
 
-    while (!estFinPartie(jeuCopie) || profondeur <= profondeurMax) {
+    while (!estFinPartie(jeuCopie) && profondeur <= profondeurMax) {
+
         Coup* coupAleatoire = creerCoupAleatoire(jeuCopie);
 
-        DEBUG_PRINT("Profondeur %d: coup aléatoire (trou=%d, couleur=%d)\n", profondeur, coupAleatoire->trou, coupAleatoire->couleur);
+        DEBUG_PRINT("Profondeur %d: coup aléatoire (trou=%d, couleur=%d), fin de partie : %d\n", profondeur, coupAleatoire->trou, coupAleatoire->couleur, estFinPartie(jeuCopie));
         jouerCoup(jeuCopie, coupAleatoire);
         libererCoup(coupAleatoire);
+        
+        profondeur++;
     }
 
     if (estFinPartie(jeuCopie)) {
@@ -204,11 +207,12 @@ Coup* choisirMeilleurCoupMCTS(Jeu* jeu, int limiteTempsInt, double (*minimax)(Je
 
     int counter = 0;
     while(!jeu->t.estFinTemps) {
-        parcoursMCTS(racine, evaluation, 100, racine->jeu->joueurActuel);
         counter++;
-        DEBUG_PRINT("Parcours %d", counter);
+        DEBUG_PRINT("Parcours %d\n", counter);
+        parcoursMCTS(racine, evaluation, 100, racine->jeu->joueurActuel);
 
         verifierFinDuTemps(&jeu->t);
+        DEBUG_PRINT("temps écoulé : %.8f\n", (double)(clock() - jeu->t.debut) / CLOCKS_PER_SEC);
     }
 
     for (int i = 0; i < racine->nbEnfants; i++) {

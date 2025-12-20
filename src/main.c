@@ -23,7 +23,7 @@
 #define EVAL_IA_2 evalMinChoix
 
 #define JOUEUR_MACHINE 1
-#define DUREE_SLEEP 0
+#define DUREE_SLEEP 0.5
 
 // #define MQTT_ADDRESS  "ssl://localhost:8883"
 // #define MQTT_CLIENTID "IA_AWALE"
