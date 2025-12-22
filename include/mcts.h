@@ -15,7 +15,7 @@
 typedef struct NoeudMCTS {
     Jeu* jeu;
     Coup* coup;
-    double scoreTotal;
+    int scoreTotal;
     int n;
     struct NoeudMCTS* parent;
     struct NoeudMCTS** enfants;
