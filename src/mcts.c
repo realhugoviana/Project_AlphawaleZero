@@ -6,6 +6,7 @@
 #include <time.h>
 #include <math.h>
 #include <float.h>
+#include <limits.h>
 
 #include "jeu.h"
 #include "minimax.h"
@@ -85,32 +86,132 @@ void libererNoeudMCTS(NoeudMCTS* noeud) {
     free(noeud);
 }
 
+int gagnant(Jeu* jeu, bool joueurRacine) {
+    int gagnant = 0;
+
+    if (estFinPartie(jeu)) {
+        if (jeu->score[joueurRacine] > jeu->score[!joueurRacine]) {
+            gagnant = 1;
+        }
+        else if (jeu->score[!joueurRacine] > jeu->score[joueurRacine]) {
+            gagnant = -1;
+        }
+    }
+
+    return gagnant;
+}
+
 int evalMCTS(Jeu* jeu, bool joueurRacine) {
-    int victoire = 0;
+    int evaluation = 0;
 
-    if (jeu->score[joueurRacine] > jeu->score[!joueurRacine]) {
-        victoire = 1;
+    if (estFinPartie(jeu)) {
+        if (jeu->score[joueurRacine] > jeu->score[!joueurRacine]) {
+            evaluation = 10000;
+        }
+        else if (jeu->score[!joueurRacine] > jeu->score[joueurRacine]) {
+            evaluation = -10000;
+        }
     }
-    else if (jeu->score[!joueurRacine] > jeu->score[joueurRacine]) {
-        victoire = -1;
+    else {
+        int mobilite = 0;
+
+        for (int trou = !jeu->joueurActuel; trou < 16; trou+=2) { 
+            if (jeu->rouge[trou] > 0) {
+                mobilite++;
+            }
+
+            if (jeu->bleu[trou] > 0) {
+                mobilite++;
+            }
+
+            if (jeu->transparent[trou] > 0) {
+                mobilite+=2;
+            }
+        }
+
+        int score = jeu->score[joueurRacine] - jeu->score[!joueurRacine];
+
+        double coefS = 1;
+        double coefM = 0.5;
+
+        evaluation =  coefS * score + coefM * mobilite;
     }
 
-    return victoire;
+    return evaluation;
 }
 
 
 // Fonction de plongeon pour le MCTS, génère un coup aléatoire jusqu'à une certaine profondeur et évalue la position
-double plongeon(Jeu* jeu, bool joueurRacine) {
+int plongeon(Jeu* jeu, bool joueurRacine) {
     Jeu* jeuCopie = copierJeu(jeu);
     int score;
+    int profondeur = 0;
 
-    while (!estFinPartie(jeuCopie)) {
+    while (!estFinPartie(jeuCopie) && profondeur < 10000) {
 
         Coup* coupAleatoire = creerCoupAleatoire(jeuCopie);
 
         DEBUG_PRINT("coup aléatoire (trou=%d, couleur=%d), fin de partie : %d\n", coupAleatoire->trou, coupAleatoire->couleur, estFinPartie(jeuCopie));
         jouerCoup(jeuCopie, coupAleatoire);
         libererCoup(coupAleatoire);
+
+        profondeur++;
+    }
+    
+    score = gagnant(jeuCopie, joueurRacine);
+
+    DEBUG_PRINT("Score évalué après plongeon: %.2f\n", score);
+
+    libererJeu(jeuCopie);
+
+    return score;
+}
+
+
+Coup* creerMeilleurCoup(Jeu* jeu) {
+    Coup** coupsPossibles = creerCoupsEnfants();
+    int nbCoupsPossibles = genererCoupsEnfants(jeu, coupsPossibles);
+
+    Coup* meilleurCoup = creerCoup(-1, -1); 
+    int meilleurEval = INT_MIN;
+
+    int eval;
+
+    for (int i = 0; i< nbCoupsPossibles; i++) {
+        Jeu* jeuCopie = copierJeu(jeu);
+        jouerCoup(jeuCopie, coupsPossibles[i]);
+
+        eval = evalMCTS(jeuCopie, jeuCopie->joueurActuel);
+
+        if (eval > meilleurEval) {
+            meilleurEval = eval;
+
+            meilleurCoup->trou = coupsPossibles[i]->trou;
+            meilleurCoup->couleur = coupsPossibles[i]->couleur;
+        }
+
+        libererJeu(jeuCopie);
+    }
+
+    libererCoupsEnfants(coupsPossibles);
+    return meilleurCoup;
+}
+
+
+int plongeonDirige(Jeu* jeu, bool joueurRacine) {
+    Jeu* jeuCopie = copierJeu(jeu);
+    int score;
+    int profondeur = 0;
+
+    while (!estFinPartie(jeuCopie) && profondeur < 60) {
+
+        Coup* coup = creerMeilleurCoup(jeuCopie);
+
+        DEBUG_PRINT("coup aléatoire (trou=%d, couleur=%d), fin de partie : %d\n", coupAleatoire->trou, coupAleatoire->couleur, estFinPartie(jeuCopie));
+        jouerCoup(jeuCopie, coup);
+        libererCoup(coup);
+
+        profondeur++;
     }
     
     score = evalMCTS(jeuCopie, joueurRacine);
@@ -123,13 +224,14 @@ double plongeon(Jeu* jeu, bool joueurRacine) {
 }
 
 
+
 double ucb1(NoeudMCTS* noeud, int N) {
     if (noeud->n == 0) {
         return DBL_MAX; // Priorité maximale pour les noeuds non explorés
     }
 
     double moyenneScore = (double)noeud->scoreTotal / (double)noeud->n;
-    double exploration = 1.414 * sqrt(log(N) / noeud->n);
+    double exploration = 100 * 1.414 * sqrt(log(N) / (double)noeud->n);
 
     return moyenneScore + exploration;
 }
@@ -175,12 +277,17 @@ void parcoursMCTS(NoeudMCTS* racine, bool joueurRacine) {
     int indiceMeilleurEnfant;
     NoeudMCTS* noeudActuel = racine;
     int score;
+    int profondeur = 0;
 
     while (noeudActuel->nbEnfants > 0) {
         indiceMeilleurEnfant = indiceMeilleurUcb1(noeudActuel);
 
         noeudActuel = noeudActuel->enfants[indiceMeilleurEnfant];
+
+        profondeur++;
     }
+
+    printf("Profondeur : %d\n", profondeur);
 
     if (!estFinPartie(noeudActuel->jeu)) {
         genererNoeudsMCTSEnfants(noeudActuel);
@@ -220,6 +327,8 @@ Coup* choisirMeilleurCoupMCTS(Jeu* jeu, int limiteTempsInt, double (*minimax)(Je
         verifierFinDuTemps(&jeu->t);
         DEBUG_PRINT("temps écoulé : %.8f\n", (double)(clock() - jeu->t.debut) / CLOCKS_PER_SEC);
     }
+
+    printf("nombre de parcours : %d\n", racine->n);
 
     for (int i = 0; i < racine->nbEnfants; i++) {
         temp = racine->enfants[i];
