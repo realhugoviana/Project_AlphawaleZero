@@ -11,11 +11,11 @@
 #include "evaluation.h"
 #include "mcts.h"
 
-#define IA_MODE 2 // 0: Joueur vs Joueur, 1: Joueur vs IA, 2: IA vs IA
+#define IA_MODE 3 // 0: Joueur vs Joueur, 1: Joueur vs IA, 2: IA vs IA
 
 #define PROFONDEUR_IA_1 1
-#define ALGO_IA_1 alphaBetaVariable
-#define EVAL_IA_1 evalMinChoix
+#define ALGO_IA_1 minimax
+#define EVAL_IA_1 maxScore
 
 #define PROFONDEUR_IA_2 1
 #define ALGO_IA_2 alphaBetaVariable
@@ -60,23 +60,49 @@ int main() {
             if (jeu->joueurActuel == 0) 
                 coup = choisirMeilleurCoupIteratifVariable(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
             else 
-                coup = choisirMeilleurCoupMCTS(jeu, PROFONDEUR_IA_2, ALGO_IA_2, EVAL_IA_2);
+                coup = choisirMeilleurCoupIteratifVariable(jeu, PROFONDEUR_IA_2, ALGO_IA_2, EVAL_IA_2);
+                
+            // print le coup joué format juste "1TR"
+            end = clock();
+            timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
+            sleep(DUREE_SLEEP);
+        }
+
+        // Mode évaluation uniquement
+        else if (IA_MODE == 3) {
+            start = clock();
+            if (jeu->joueurActuel == 0) 
+                coup = choisirMeilleurCoup(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
+            else 
+                coup = choisirMeilleurCoupIteratifVariable(jeu, PROFONDEUR_IA_2, ALGO_IA_2, EVAL_IA_2);
+    
+            // print le coup joué format juste "1TR"
             end = clock();
             timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
             sleep(DUREE_SLEEP);
         }
 
         jouerCoup(jeu, coup);
-        afficherJeu(jeu);
-        sortirCoup(coup);
+        
+        if (IA_MODE < 3) {
+            afficherJeu(jeu);
 
-        if (IA_MODE != 0) 
             printf("Temps de calcul : %.8f secondes\n", timeSpent);
+            printf("Coup numéro : %d\n", jeu->nbCoups);
+        }
+
+        if (jeu->nbCoups >= 400) {
+            printf("RESULT LIMIT %d %d\n", jeu->score[0], jeu->score[1]);
+            break;
+        } else if (estFinPartie(jeu)) {
+            printf("RESULT %s %d %d\n", sortirCoup(coup), jeu->score[0], jeu->score[1]);
+        } else {
+            printf("%s\n", sortirCoup(coup));
+        }
 
         libererCoup(coup);
-        printf("Coup numéro : %d\n", jeu->nbCoups);
+       
     }
 
-    printf("Partie terminée.\n");
     return 0;
 }

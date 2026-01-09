@@ -46,7 +46,7 @@ bool estFinPartie(Jeu* jeu);
 
 void afficherJeu(Jeu* jeu);
 
-void sortirCoup(Coup* coup);
+char* sortirCoup(Coup* coup);
 
 int genererCoupsEnfants(Jeu* jeu, Coup** coupsEnfants);
 

@@ -11,6 +11,7 @@
  *                    DEBUG
  * ---------------------------------------------
  * 
+ *
  * DEBUG_MODE = 1  -> affichage des DEBUG_PRINT
  * DEBUG_MODE = 0  -> désactiver
  * 
@@ -18,10 +19,18 @@
 
 #define DEBUG_MODE 0
 
-#if DEBUG_MODE
+# if DEBUG_MODE
     #define DEBUG_PRINT(...) printf(__VA_ARGS__)
-#else
+# else
     #define DEBUG_PRINT(...)
+#endif
+
+#define PRINT_MODE 0
+
+# if PRINT_MODE
+    #define PRINT_PRINT(...) printf(__VA_ARGS__)
+# else
+    #define PRINT_PRINT(...)
 #endif
 
 
@@ -269,8 +278,8 @@ void capturerGraines(Jeu* jeu, int trou) {
 Coup* lireCoup(Jeu* jeu) {
     char buffer[6];
 
-    printf("joueur %d \n", jeu->joueurActuel+1);
-    printf("Entrez le coup : ");
+    PRINT_PRINT("joueur %d \n", jeu->joueurActuel+1);
+    PRINT_PRINT("Entrez le coup : ");
     fgets(buffer, 5, stdin);
 
     size_t len = strlen(buffer);
@@ -312,7 +321,7 @@ Coup* lireCoup(Jeu* jeu) {
 }
 
 
-void sortirCoup(Coup* coup) {
+char* sortirCoup(Coup* coup) {
     char* couleurChar;
     if (coup->couleur == 0) {
         couleurChar = "R";
@@ -324,7 +333,10 @@ void sortirCoup(Coup* coup) {
         couleurChar = "TB"; 
     }
 
-    printf("%d%s\n", coup->trou + 1, couleurChar);
+    char* returnCoup = malloc(8);
+    sprintf(returnCoup, "%d%s", coup->trou + 1, couleurChar);
+
+    return returnCoup;
 }
 
 
@@ -357,28 +369,28 @@ bool estFinPartie(Jeu* jeu) {
 
 
 void afficherJeu(Jeu* jeu) {
-    printf("=== ÉTAT DU JEU ===\n\n");
+    PRINT_PRINT("=== ÉTAT DU JEU ===\n\n");
 
     for (int i = 0; i < 16; i++) {
-        printf("trou %2d: R: %2d | B: %2d | T: %2d \n", i+1, jeu->rouge[i], jeu->bleu[i], jeu->transparent[i]);
+        PRINT_PRINT("trou %2d: R: %2d | B: %2d | T: %2d \n", i+1, jeu->rouge[i], jeu->bleu[i], jeu->transparent[i]);
     }
-    printf("\n\n");
+    PRINT_PRINT("\n\n");
 
-    printf("Score : 1 = %2d | 2 = %2d\n", jeu->score[0], jeu->score[1]);
+    PRINT_PRINT("Score : 1 = %2d | 2 = %2d\n", jeu->score[0], jeu->score[1]);
     if (estFinPartie(jeu)) {
-        printf("=== PARTIE TERMINÉE ===\n");
+        PRINT_PRINT("=== PARTIE TERMINÉE ===\n");
         int gagnant = donnerGagnant(jeu);
         if (gagnant == 0) {
-            printf("Match nul !\n");
+            PRINT_PRINT("Match nul !\n");
         } else {
-            printf("Le joueur %d a gagné la partie !\n", gagnant);
+            PRINT_PRINT("Le joueur %d a gagné la partie !\n", gagnant);
         }
     }
     else {
-        printf("Joueur actuel : %s\n", jeu->joueurActuel ? "2" : "1");
+        PRINT_PRINT("Joueur actuel : %s\n", jeu->joueurActuel ? "2" : "1");
     }
 
-    printf("====================\n");
+    PRINT_PRINT("====================\n");
 }
 
 
@@ -478,7 +490,7 @@ Coup* creerCoupAleatoire(Jeu* jeu) {
     Coup* coupAleatoire = creerCoup(-1, -1);
 
     if (estFinPartie(jeu)) {
-        printf("Fin de partie");
+        PRINT_PRINT("Fin de partie");
         return coupAleatoire;
     }
 

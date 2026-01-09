@@ -2,8 +2,7 @@
 CC = gcc
 
 # Compiler flags
-CFLAGS = -Wall -Wextra -Iinclude -I/opt/homebrew/opt/libpaho-mqtt/include
-LDFLAGS = -L/opt/homebrew/opt/libpaho-mqtt/lib -lpaho-mqtt3cs
+CFLAGS = -Wall -Wextra -Iinclude 
 
 # Directories
 SRC_DIR = src
@@ -25,7 +24,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(OBJ) -o $@ -lm
 
 run: all
 	./$(TARGET)

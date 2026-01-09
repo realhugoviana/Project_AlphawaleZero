@@ -19,6 +19,15 @@
 #endif
 
 
+#define PRINT_MODE 0
+
+# if PRINT_MODE
+    #define PRINT_PRINT(...) printf(__VA_ARGS__)
+# else
+    #define PRINT_PRINT(...)
+#endif
+
+
 void verifierFinDuTemps(Temps* t) {
     double tempsEcoule = (double)(clock() - t->debut) / CLOCKS_PER_SEC;
     if (tempsEcoule >= t->limiteTemps) {
@@ -239,7 +248,7 @@ Coup* choisirMeilleurCoup(Jeu* jeu, int profondeur, double (*minimax)(Jeu*, int,
     Coup** coupsEnfants = creerCoupsEnfants();
     int nbCoupsEnfants = genererCoupsEnfants(jeu, coupsEnfants);
 
-    printf("Nombre de coups enfants générés : %d\n", nbCoupsEnfants);
+    PRINT_PRINT("Nombre de coups enfants générés : %d\n", nbCoupsEnfants);
 
     for (int i = 0; i < nbCoupsEnfants; i++) {
 
@@ -274,7 +283,7 @@ Coup* choisirMeilleurCoupIteratif(Jeu* jeu, int profondeurMax, double (*minimax)
     Coup** coupsEnfants = creerCoupsEnfants();
     int nbCoupsEnfants = genererCoupsEnfants(jeu, coupsEnfants);
 
-    printf("Nombre de coups enfants générés : %d\n", nbCoupsEnfants);
+    PRINT_PRINT("Nombre de coups enfants générés : %d\n", nbCoupsEnfants);
 
     for(int profondeur = 1; profondeur <= profondeurMax; profondeur++) {
         for (int i = 0; i < nbCoupsEnfants; i++) {
@@ -318,9 +327,9 @@ Coup* choisirMeilleurCoupIteratifVariable(Jeu* jeu, int limiteTempsInt, double (
     Coup** coupsEnfants = creerCoupsEnfants();
     int nbCoupsEnfants = genererCoupsEnfants(jeu, coupsEnfants);
 
-    printf("Nombre de coups enfants générés : %d\n", nbCoupsEnfants);
+    PRINT_PRINT("Nombre de coups enfants générés : %d\n", nbCoupsEnfants);
 
-    double limiteTempsDouble = (double)limiteTempsInt - 0.01; 
+    double limiteTempsDouble = (double)limiteTempsInt - 0.5; 
 
     Temps t;
     jeu->t.debut = clock();
@@ -328,7 +337,7 @@ Coup* choisirMeilleurCoupIteratifVariable(Jeu* jeu, int limiteTempsInt, double (
     jeu->t.estFinTemps = false;
 
     for (int profondeur = 1; profondeur <= 50; profondeur++) {
-        printf("Profondeur actuelle : %d\n", profondeur);
+        PRINT_PRINT("Profondeur actuelle : %d\n", profondeur);
 
         for (int i = 0; i < nbCoupsEnfants; i++) {
             verifierFinDuTemps(&jeu->t);

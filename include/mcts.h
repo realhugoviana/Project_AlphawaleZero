@@ -7,6 +7,9 @@
 #include <ctype.h> 
 #include <stdbool.h>
 #include <time.h>
+#include <math.h>
+#include <float.h>
+#include <limits.h>
 
 #include "jeu.h"
 #include "evaluation.h"
