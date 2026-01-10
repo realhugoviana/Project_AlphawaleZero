@@ -24,10 +24,30 @@
 #define JOUEUR_MACHINE 1
 #define DUREE_SLEEP 0
 
-int main() {
+static int readLine(char *buf, size_t n) {
+    if (!fgets(buf, (int)n, stdin)) return 0;
+    size_t len = strlen(buf);
+    while (len > 0 && (buf[len-1] == '\n' || buf[len-1] == '\r')) {
+        buf[--len] = '\0';
+    }
+    return 1;
+}
+
+
+int main(int argc, char** argv) {
     srand(42);
 
-    Jeu* jeu = initJeu(JOUEUR_MACHINE); 
+    int idMachine = 0; // par défaut JoueurA
+
+    if (argc >= 2) {
+        if (strcmp(argv[1], "JoueurB") == 0 || strcmp(argv[1], "B") == 0) {
+            idMachine = 1;
+        } else if (strcmp(argv[1], "JoueurA") == 0 || strcmp(argv[1], "A") == 0) {
+            idMachine = 0;
+        }
+    }
+
+    Jeu* jeu = initJeu(idMachine); 
     afficherJeu(jeu);
 
     while (!estFinPartie(jeu)) {
@@ -70,16 +90,52 @@ int main() {
 
         // Mode évaluation uniquement
         else if (IA_MODE == 3) {
-            start = clock();
-            if (jeu->joueurActuel == 0) 
-                coup = choisirMeilleurCoup(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
-            else 
-                coup = choisirMeilleurCoupIteratifVariable(jeu, PROFONDEUR_IA_2, ALGO_IA_2, EVAL_IA_2);
-    
-            // print le coup joué format juste "1TR"
-            end = clock();
-            timeSpent = (double)(end - start) / CLOCKS_PER_SEC;
-            sleep(DUREE_SLEEP);
+            char etat[256];
+
+            while (readLine(etat, sizeof(etat))) {
+
+                if (strcmp(etat, "END") == 0) break;
+
+                if (strcmp(etat, "START") != 0) {
+                    if (strncmp(etat, "RESULT", 6) == 0) break;
+
+                    Coup* coupAdv = coupDepuisString(etat);
+                    
+
+                    jouerCoup(jeu, coupAdv);
+                    libererCoup(coupAdv);
+                }
+
+                if (estFinPartie(jeu) || jeu->nbCoups >= 400) {
+                    printf("RESULT LIMIT %d %d\n", jeu->score[0], jeu->score[1]);
+                    fflush(stdout);
+                    break;
+                }
+
+                // ✅ Toujours le même algo pour NOUS
+                Coup* coup = choisirMeilleurCoup(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
+                if (!coup) {
+                    printf("RESULT DISQUALIFIED no_move\n");
+                    fflush(stdout);
+                    break;
+                }
+
+                const char* sCoup = sortirCoup(coup);
+
+                jouerCoup(jeu, coup);
+
+                if (jeu->nbCoups >= 400) {
+                    printf("RESULT LIMIT %d %d\n", jeu->score[0], jeu->score[1]);
+                } else if (estFinPartie(jeu)) {
+                    printf("RESULT %s %d %d\n", sCoup, jeu->score[0], jeu->score[1]);
+                } else {
+                    printf("%s\n", sCoup);
+                }
+                fflush(stdout);
+
+                libererCoup(coup);
+            }
+            return 0;
         }
 
         jouerCoup(jeu, coup);

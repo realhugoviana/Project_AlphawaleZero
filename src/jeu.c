@@ -274,50 +274,67 @@ void capturerGraines(Jeu* jeu, int trou) {
  * ---------------------------------------------
  */
 
+Coup* coupDepuisString(const char* buffer) {
+    if (!buffer) return NULL;
+
+    // Copie locale modifiable
+    char s[256];
+    size_t len = strlen(buffer);
+    if (len >= sizeof(s)) return NULL;
+
+    memcpy(s, buffer, len + 1);
+
+    // Enlever \n / \r en fin (si jamais)
+    while (len > 0 && (s[len - 1] == '\n' || s[len - 1] == '\r')) {
+        s[--len] = '\0';
+    }
+
+    // (Optionnel) enlever espaces fin
+    while (len > 0 && isspace((unsigned char)s[len - 1])) {
+        s[--len] = '\0';
+    }
+    if (len == 0) return NULL;
+
+    // Détection transparent
+    bool estTransparent = (strchr(s, 'T') != NULL || strchr(s, 't') != NULL);
+
+    // Dernier char = couleur
+    char couleurChar = (char)toupper((unsigned char)s[len - 1]);
+    if (couleurChar != 'R' && couleurChar != 'B') {
+        return NULL; // format invalide
+    }
+
+    // Extraire la partie numérique
+    size_t cut = estTransparent ? (len - 2) : (len - 1);
+    if (cut == 0) return NULL;
+
+    char tmp[32];
+    if (cut >= sizeof(tmp)) return NULL;
+    memcpy(tmp, s, cut);
+    tmp[cut] = '\0';
+
+    // Vérifier que tmp est bien numérique
+    for (size_t i = 0; tmp[i]; i++) {
+        if (!isdigit((unsigned char)tmp[i])) return NULL;
+    }
+
+    int trou = atoi(tmp) - 1;
+    if (trou < 0) return NULL;
+
+    int couleur = (estTransparent ? 2 : 0) + ((couleurChar == 'R') ? 0 : 1);
+
+    return creerCoup(trou, couleur);
+}
+
 
 Coup* lireCoup(Jeu* jeu) {
     char buffer[6];
 
-    PRINT_PRINT("joueur %d \n", jeu->joueurActuel+1);
-    PRINT_PRINT("Entrez le coup : ");
+    printf("joueur %d \n", jeu->joueurActuel+1);
+    printf("Entrez le coup : ");
     fgets(buffer, 5, stdin);
 
-    size_t len = strlen(buffer);
-    if (len > 0 && buffer[len - 1] == '\n') {
-        buffer[len - 1] = '\0';
-    } else {
-        int c;
-        while ((c = getchar()) != '\n' && c != EOF);
-    }
-    DEBUG_PRINT("[DEBUG] Coup lu : '%s'\n", buffer);
-
-    bool estTransparent = strchr(buffer, 'T') != NULL || strchr(buffer, 't') != NULL;
-    DEBUG_PRINT("[DEBUG] Coup transparent ? %s\n", estTransparent ? "oui" : "non");
-
-    char couleurChar = toupper(buffer[strlen(buffer) - 1]);
-    DEBUG_PRINT("[DEBUG] Caractère couleur lu : '%c'\n", couleurChar);
-
-    int trou;
-    char tmp[3];
-
-    if (estTransparent) {
-        strncpy(tmp, buffer, strlen(buffer) - 2);
-        tmp[strlen(buffer) - 2] = '\0';
-        DEBUG_PRINT("[DEBUG] Extraction coup transparent, tmp = '%s'\n", tmp);
-    } else {
-        strncpy(tmp, buffer, strlen(buffer) - 1);
-        tmp[strlen(buffer) - 1] = '\0';
-        DEBUG_PRINT("[DEBUG] Extraction coup normal, tmp = '%s'\n", tmp);
-    }
-
-    trou = atoi(tmp) - 1;
-    DEBUG_PRINT("[DEBUG] Trou choisi : %d (index 0-based)\n", trou);
-
-    int couleur = (estTransparent * 2) + ((couleurChar == 'R') ? 0 : 1);
-    DEBUG_PRINT("[DEBUG] Couleur calculée : %d\n", couleur);
-    DEBUG_PRINT("         -> 0 = Rouge, 1 = Bleu, 2 = Transparent Rouge, 3 = Transparent Bleu\n");
-
-    return creerCoup(trou, couleur);
+    return coupDepuisString(buffer);
 }
 
 

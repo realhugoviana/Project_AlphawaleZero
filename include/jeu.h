@@ -38,6 +38,8 @@ void libererCoup(Coup* coup);
  
 int recupererNbGrainesTotal(Jeu* jeu, int trou);
 
+Coup* coupDepuisString(const char* buffer);
+
 Coup* lireCoup(Jeu* jeu);
 
 void jouerCoup(Jeu* jeu, Coup* coup);
