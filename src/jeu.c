@@ -451,6 +451,7 @@ void jouerCoup(Jeu* jeu, Coup* coup) {
     DEBUG_PRINT("Changement de joueur: joueurActuel=%d, nbCoups=%d\n", jeu->joueurActuel, jeu->nbCoups);
 }
 
+
 int genererCoupsEnfants(Jeu* jeu, Coup** coupsEnfants) {
     int nbCoupsEnfants = 0; // Nombre de coups générés
 
@@ -476,6 +477,14 @@ int genererCoupsEnfants(Jeu* jeu, Coup** coupsEnfants) {
             coupsEnfants[nbCoupsEnfants]->couleur = 3;
             nbCoupsEnfants++;
         }
+    }
+
+    // Mélanger les coups générés pour un ordre aléatoire
+    for (int i = nbCoupsEnfants - 1; i > 0; i--) {
+        int j = rand() % (i+1);
+        Coup* temp = coupsEnfants[i];
+        coupsEnfants[i] = coupsEnfants[j];
+        coupsEnfants[j] = temp;
     }
 
     return nbCoupsEnfants; // Retourne le nombre de coups enfant pour connaitre la largeur de l'arbre
