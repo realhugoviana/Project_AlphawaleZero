@@ -384,3 +384,88 @@ Coup* choisirMeilleurCoupIteratifVariable(Jeu* jeu, int limiteTempsInt, double (
 }
 
 
+Coup* choisirMeilleurCoupAleatoireIteratifVariable(Jeu* jeu, int limiteTempsInt, double (*minimax)(Jeu*, int, double, double, bool, double (*)(Jeu*)), double (*evaluation)(Jeu*)) {
+    int indexMeilleurCoup = -1;
+    double meilleurScore = -10000;
+    const int signeRacine = (jeu->joueurActuel == 0) ? +1 : -1;
+
+    Coup** coupsEnfants = creerCoupsEnfants();
+    int nbCoupsEnfants = genererCoupsEnfants(jeu, coupsEnfants);
+
+    PRINT_PRINT("Nombre de coups enfants générés : %d\n", nbCoupsEnfants);
+
+    double limiteTempsDouble = (double)limiteTempsInt - 0.1; 
+
+    Temps t;
+    jeu->t.debut = clock();
+    jeu->t.limiteTemps = limiteTempsDouble; 
+    jeu->t.estFinTemps = false;
+
+    for (int profondeur = 1; profondeur <= 50; profondeur++) {
+        PRINT_PRINT("Profondeur actuelle : %d\n", profondeur);
+
+        double scores[nbCoupsEnfants];
+        int nbEvalues = 0;
+
+        for (int i = 0; i < nbCoupsEnfants; i++) {
+            verifierFinDuTemps(&jeu->t);
+            if (jeu->t.estFinTemps) break;
+
+            Jeu* jeuCopie = copierJeu(jeu);
+            jouerCoup(jeuCopie, coupsEnfants[i]);
+
+            bool estMax = (jeuCopie->joueurActuel == 0);
+
+            double score = signeRacine * minimax(jeuCopie, profondeur - 1, -10000, 10000, estMax, evaluation);
+            
+            scores[i] = score;
+            nbEvalues++;
+
+            libererJeu(jeuCopie);
+
+            if (jeu->t.estFinTemps) break;
+
+            if (score > meilleurScore) {
+                meilleurScore = score;
+            }
+
+        }
+
+        verifierFinDuTemps(&jeu->t);
+        if (jeu->t.estFinTemps) break;
+
+        // Seuil à 90% (négatif et positif)
+        double ratio = 0.9;
+        double seuil = (meilleurScore >= 0) ? (ratio * meilleurScore) : (meilleurScore / ratio);
+
+        // Liste des coups candidats
+        int candidatsIndices[nbCoupsEnfants];
+        int nbCandidats = 0;
+
+        for (int i = 0; i < nbEvalues; i++) {
+            if (scores[i] >= seuil) {
+                candidatsIndices[nbCandidats] = i;
+                nbCandidats++;
+            }
+        }
+
+        // Choix aléatoire parmi les candidats
+        int indiceAleatoire = rand() % nbCandidats;
+        indexMeilleurCoup = candidatsIndices[indiceAleatoire];
+
+        // trie les coups
+        Coup* temp = coupsEnfants[0];
+        coupsEnfants[0] = coupsEnfants[indexMeilleurCoup];
+        coupsEnfants[indexMeilleurCoup] = temp;
+
+        // reset
+        indexMeilleurCoup = -1;
+        meilleurScore = -10000;
+    }
+
+    Coup* meilleurCoup = creerCoup(coupsEnfants[0]->trou, coupsEnfants[0]->couleur);
+
+    libererCoupsEnfants(coupsEnfants);
+
+    return meilleurCoup;
+}

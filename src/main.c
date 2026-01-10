@@ -11,11 +11,11 @@
 #include "evaluation.h"
 #include "mcts.h"
 
-#define IA_MODE 3 // 0: Joueur vs Joueur, 1: Joueur vs IA, 2: IA vs IA
+#define IA_MODE 2 // 0: Joueur vs Joueur, 1: Joueur vs IA, 2: IA vs IA
 
 #define PROFONDEUR_IA_1 1
-#define ALGO_IA_1 minimax
-#define EVAL_IA_1 maxScore
+#define ALGO_IA_1 alphaBetaVariable
+#define EVAL_IA_1 evalMinChoix
 
 #define PROFONDEUR_IA_2 1
 #define ALGO_IA_2 alphaBetaVariable
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
             if (jeu->joueurActuel == 0) 
                 coup = choisirMeilleurCoupIteratifVariable(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
             else 
-                coup = choisirMeilleurCoupIteratifVariable(jeu, PROFONDEUR_IA_2, ALGO_IA_2, EVAL_IA_2);
+                coup = choisirMeilleurCoupAleatoireIteratifVariable(jeu, PROFONDEUR_IA_2, ALGO_IA_2, EVAL_IA_2);
                 
             // print le coup joué format juste "1TR"
             end = clock();
@@ -100,25 +100,13 @@ int main(int argc, char** argv) {
                     if (strncmp(etat, "RESULT", 6) == 0) break;
 
                     Coup* coupAdv = coupDepuisString(etat);
-                    
 
                     jouerCoup(jeu, coupAdv);
                     libererCoup(coupAdv);
                 }
 
-                if (estFinPartie(jeu) || jeu->nbCoups >= 400) {
-                    printf("RESULT LIMIT %d %d\n", jeu->score[0], jeu->score[1]);
-                    fflush(stdout);
-                    break;
-                }
-
-                // ✅ Toujours le même algo pour NOUS
-                Coup* coup = choisirMeilleurCoup(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
-                if (!coup) {
-                    printf("RESULT DISQUALIFIED no_move\n");
-                    fflush(stdout);
-                    break;
-                }
+                // Notre algo IA
+                Coup* coup = choisirMeilleurCoupIteratifVariable(jeu, PROFONDEUR_IA_1, ALGO_IA_1, EVAL_IA_1);
 
                 const char* sCoup = sortirCoup(coup);
 
@@ -145,15 +133,8 @@ int main(int argc, char** argv) {
 
             printf("Temps de calcul : %.8f secondes\n", timeSpent);
             printf("Coup numéro : %d\n", jeu->nbCoups);
-        }
-
-        if (jeu->nbCoups >= 400) {
-            printf("RESULT LIMIT %d %d\n", jeu->score[0], jeu->score[1]);
-            break;
-        } else if (estFinPartie(jeu)) {
-            printf("RESULT %s %d %d\n", sortirCoup(coup), jeu->score[0], jeu->score[1]);
-        } else {
-            printf("%s\n", sortirCoup(coup));
+            printf("Coup joué : %s\n", sortirCoup(coup));
+            printf("\n");
         }
 
         libererCoup(coup);

@@ -14,8 +14,8 @@ public class Arbitre {
 //         Process B = Runtime.getRuntime().exec("java -cp c:\\Users\\Jean-Charles\\Documents\\Work\\Cours\\AIGame\\AIGame\\out\\production\\AIGame\\ JoueurExterne JoueurB");
 //         //Process B = new ProcessBuilder("./B").start();
 
-        Process A = new ProcessBuilder("./awale").start();
-        Process B = new ProcessBuilder("./awale").start();
+        Process A = new ProcessBuilder("./awale1").start();
+        Process B = new ProcessBuilder("./awale2").start();
 
         Joueur joueurA = new Joueur("A", A);
         Joueur joueurB = new Joueur("B", B);
@@ -38,9 +38,9 @@ public class Arbitre {
             if (nbCoups == 400) {
                 System.out.println("RESULT LIMIT");
             }
-            // Validation du coup
-            // if (!coupValide(reponse)) {
-            //     disqualifier(courant, "coup invalide : " + reponse);
+            //Validation du coup
+            // if (!coupValide(coup)) {
+            //     disqualifier(courant, "coup invalide : " + coup);
             //     break;
             // }
 
@@ -61,7 +61,7 @@ public class Arbitre {
     }
 
     // ===============================
-    // Validation du coup (À ADAPTER)
+    // Validation du coup 
     // ===============================
     private static boolean coupValide(String coup) {
         try {

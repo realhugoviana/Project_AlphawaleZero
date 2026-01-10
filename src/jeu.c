@@ -25,7 +25,7 @@
     #define DEBUG_PRINT(...)
 #endif
 
-#define PRINT_MODE 0
+#define PRINT_MODE 1
 
 # if PRINT_MODE
     #define PRINT_PRINT(...) printf(__VA_ARGS__)
