@@ -239,118 +239,6 @@ double alphaBetaVariable(Jeu* jeu, int profondeur, double alpha, double beta, bo
 
 }
 
-double alphaBetaVariableAleatoire(Jeu* jeu, int profondeur, double alpha, double beta, bool maximisant, double (*evaluation)(Jeu*)) {
-    if (profondeur == 0 && !jeu->t.estFinTemps) {
-        return evaluation(jeu);
-    } 
-
-    if (estFinPartie(jeu)) {
-        return evalFinPartie(jeu);
-    }
-
-    Coup** coupsEnfants = creerCoupsEnfants();
-    int nbCoupsEnfants = genererCoupsEnfantsAleatoire(jeu, coupsEnfants);
-
-    if (maximisant) {
-        double maxEval = -10000;
-
-        for (int i = 0; i < nbCoupsEnfants; i++) {
-            verifierFinDuTemps(&jeu->t);
-            if (jeu->t.estFinTemps) break;
-
-            Jeu* jeuCopie = copierJeu(jeu);
-            jouerCoup(jeuCopie, coupsEnfants[i]);
-
-            double eval = alphaBetaVariable(jeuCopie, profondeur - 1, alpha, beta, false, evaluation);
-
-            if (eval > maxEval) {
-                maxEval = eval;
-            }
-            if (eval > alpha) {
-                alpha = eval;
-            }
-
-            libererJeu(jeuCopie);
-
-            if (jeu->t.estFinTemps) break;
-
-            if (beta <= alpha) {
-                break; 
-            }
-        }
-
-        libererCoupsEnfants(coupsEnfants);
-
-        return maxEval;
-
-    } else {
-        double minEval = 10000;
-
-        for (int i = 0; i < nbCoupsEnfants; i++) {
-            verifierFinDuTemps(&jeu->t);
-            if (jeu->t.estFinTemps) break;
-
-            Jeu* jeuCopie = copierJeu(jeu);
-            jouerCoup(jeuCopie, coupsEnfants[i]);
-
-            double eval = alphaBetaVariable(jeuCopie, profondeur - 1, alpha, beta, true, evaluation);
-
-            if (eval < minEval) {
-                minEval = eval;
-            }
-            if (eval < beta) {
-                beta = eval;
-            }
-
-            libererJeu(jeuCopie);
-
-            if (jeu->t.estFinTemps) break;
-
-            if (beta <= alpha) {
-                break; 
-            }
-        }
-
-        libererCoupsEnfants(coupsEnfants);
-
-        return minEval;
-    }
-
-}
-
-
-Coup* choisirMeilleurCoup(Jeu* jeu, int profondeur, double (*minimax)(Jeu*, int, double, double, bool, double (*)(Jeu*)), double (*evaluation)(Jeu*)) {
-    Coup* meilleurCoup = creerCoup(-1, -1); 
-    double meilleurScore = -10000;
-    const int signeRacine = (jeu->joueurActuel == 0) ? +1 : -1;
-
-    Coup** coupsEnfants = creerCoupsEnfants();
-    int nbCoupsEnfants = genererCoupsEnfants(jeu, coupsEnfants);
-
-    PRINT_PRINT("Nombre de coups enfants générés : %d\n", nbCoupsEnfants);
-
-    for (int i = 0; i < nbCoupsEnfants; i++) {
-
-        Jeu* jeuCopie = copierJeu(jeu);
-        jouerCoup(jeuCopie, coupsEnfants[i]);
-
-        bool estMax = (jeuCopie->joueurActuel == 0);
-
-        double score = signeRacine * minimax(jeuCopie, profondeur - 1, -10000, 10000, estMax, evaluation);
-
-        if (score > meilleurScore) {
-            meilleurScore = score;
-            meilleurCoup->trou = coupsEnfants[i]->trou;
-            meilleurCoup->couleur = coupsEnfants[i]->couleur;
-        }
-
-        libererJeu(jeuCopie);
-    }
-
-    libererCoupsEnfants(coupsEnfants);
-
-    return meilleurCoup;
-}
 
 
 Coup* choisirMeilleurCoupIteratif(Jeu* jeu, int profondeurMax, double (*minimax)(Jeu*, int, double, double, bool, double (*)(Jeu*)), double (*evaluation)(Jeu*)) {
@@ -408,7 +296,7 @@ Coup* choisirMeilleurCoupIteratifVariable(Jeu* jeu, int limiteTempsInt, double (
 
     PRINT_PRINT("Nombre de coups enfants générés : %d\n", nbCoupsEnfants);
 
-    double limiteTempsDouble = (double)limiteTempsInt - 0.5; 
+    double limiteTempsDouble = (double)limiteTempsInt - 0.2; 
 
     Temps t;
     jeu->t.debut = clock();
