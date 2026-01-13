@@ -30,13 +30,13 @@ SRC = $(wildcard $(SRC_DIR)/*.c)
 # =========================
 # Targets
 # =========================
-TARGET1 = awale1$(EXT)
+TARGET1 = AlphawaleZero$(EXT)
 TARGET2 = awale2$(EXT)
 
 # =========================
 # Object dirs
 # =========================
-OBJDIR1 = $(BUILD_DIR)/awale1
+OBJDIR1 = $(BUILD_DIR)/AlphawaleZero
 OBJDIR2 = $(BUILD_DIR)/awale2
 
 # =========================
@@ -93,6 +93,6 @@ run2: $(TARGET2)
 # Clean
 # =========================
 clean:
-	rm -rf $(BUILD_DIR) awale1 awale2 awale1.exe awale2.exe
+	rm -rf $(BUILD_DIR) AlphawaleZero awale2 AlphawaleZero.exe awale2.exe
 
 .PHONY: all 1 2 run1 run2 clean

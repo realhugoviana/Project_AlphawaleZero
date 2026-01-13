@@ -35,7 +35,7 @@ static int readLine(char *buf, size_t n) {
 
 
 int main(int argc, char** argv) {
-    srand(42);
+    srand(time(NULL));
 
     int idMachine = 0; // par défaut JoueurA
 
