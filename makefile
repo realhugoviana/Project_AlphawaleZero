@@ -15,6 +15,7 @@ endif
 # Compiler flags
 # =========================
 CFLAGS = -Wall -Wextra -Iinclude
+LDLIBS = -lm
 
 # =========================
 # Directories
@@ -75,10 +76,10 @@ $(OBJDIR2)/%.o: $(SRC_DIR)/%.c | $(OBJDIR2)
 # Link
 # =========================
 $(TARGET1): $(OBJ1)
-	$(CC) $(CFLAGS) $(OBJ1) -o $@
+	$(CC) $(CFLAGS) $(OBJ1) -o $@ $(LDLIBS)
 
 $(TARGET2): $(OBJ2)
-	$(CC) $(CFLAGS) $(OBJ2) -o $@
+	$(CC) $(CFLAGS) $(OBJ2) -o $@ $(LDLIBS)
 
 # =========================
 # Run (macOS only)
