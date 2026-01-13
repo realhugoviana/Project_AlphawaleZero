@@ -12,7 +12,7 @@ typedef struct Jeu Jeu;
 
 double maxScore(Jeu* jeu);
 double evalMinChoix(Jeu* jeu);
-double evalMinChoix2(Jeu* jeu);
 double evalFinPartie(Jeu* jeu);
+double evalPartieCourte(Jeu* jeu);
 
 #endif // EVALUATION_H

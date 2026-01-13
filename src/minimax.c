@@ -298,7 +298,6 @@ Coup* choisirMeilleurCoupIteratifVariable(Jeu* jeu, int limiteTempsInt, double (
 
     double limiteTempsDouble = (double)limiteTempsInt - 0.2; 
 
-    Temps t;
     jeu->t.debut = clock();
     jeu->t.limiteTemps = limiteTempsDouble; 
     jeu->t.estFinTemps = false;

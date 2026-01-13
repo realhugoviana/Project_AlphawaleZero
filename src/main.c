@@ -15,11 +15,11 @@
 
 #define PROFONDEUR_IA_1 3
 #define ALGO_IA_1 alphaBetaVariable
-#define EVAL_IA_1 evalMinChoix2
+#define EVAL_IA_1 evalPartieCourte
 
 #define PROFONDEUR_IA_2 3
 #define ALGO_IA_2 alphaBetaVariable
-#define EVAL_IA_2 evalMinChoix
+#define EVAL_IA_2 evalPartieCourte
 
 #define JOUEUR_MACHINE 1
 #define DUREE_SLEEP 0
@@ -134,6 +134,7 @@ int main(int argc, char** argv) {
             printf("Temps de calcul : %.8f secondes\n", timeSpent);
             printf("Coup numéro : %d\n", jeu->nbCoups);
             printf("Coup joué : %s\n", sortirCoup(coup));
+            printf("Score actuel : Joueur 1 = %d | Joueur 2 = %d\n", jeu->score[0], jeu->score[1]);
             printf("\n");
         }
 
