@@ -14,8 +14,8 @@ public class Arbitre {
 //         Process B = Runtime.getRuntime().exec("java -cp c:\\Users\\Jean-Charles\\Documents\\Work\\Cours\\AIGame\\AIGame\\out\\production\\AIGame\\ JoueurExterne JoueurB");
 //         //Process B = new ProcessBuilder("./B").start();
 
-        Process A = new ProcessBuilder("./awale1").start();
-        Process B = new ProcessBuilder("./awale2").start();
+        Process A = new ProcessBuilder("awale1.exe").start();
+        Process B = new ProcessBuilder("awale2.exe").start();
 
         Joueur joueurA = new Joueur("A", A);
         Joueur joueurB = new Joueur("B", B);
